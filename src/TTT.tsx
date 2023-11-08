@@ -1,24 +1,44 @@
 import MockData from "./MockData";
 import Quilt from "./Quilt";
 import { useState, useEffect } from "react";
+import type { sensorOutput, sensorData, sensorNumber } from './types/types';
 
 function TTT() {
+  const initialMax:number = 1024;
+  
   const [sensor, setSensor] = useState<sensorData>({
-    "0": 100,
-    "1": 100,
-    "2": 100,
-    "3": 100,
-    "4": 100,
-    "5": 100,
-    "6": 100,
-    "7": 100,
-    "8": 100,
-    "9": 100,
-    "10": 100,
-    "11": 100,
-    s: 1,
-    c: false,
+    "0": initialMax,
+    "1": initialMax,
+    "2": initialMax,
+    "3": initialMax,
+    "4": initialMax,
+    "5": initialMax,
+    "6": initialMax,
+    "7": initialMax,
+    "8": initialMax,
+    "9": initialMax,
+    "10": initialMax,
+    "11": initialMax,
   });
+
+  const [calibrateSensor, setCalibrateSensor] = useState<sensorData>({
+    "0": initialMax,
+    "1": initialMax,
+    "2": initialMax,
+    "3": initialMax,
+    "4": initialMax,
+    "5": initialMax,
+    "6": initialMax,
+    "7": initialMax,
+    "8": initialMax,
+    "9": initialMax,
+    "10": initialMax,
+    "11": initialMax,
+  });
+
+  const [calibrate, setCalibrate] = useState<boolean>(false);
+  const [sensorNumber, setSensorNumber] = useState<sensorNumber>(1);
+  const [output, setOutput] = useState<sensorOutput>();
 
   function detectChange(value, channel) {
     const curChannel = channel.toString();
@@ -31,19 +51,17 @@ function TTT() {
 
   function changeSensor(value) {
     console.log(value);
-    setSensor({
-      ...sensor,
-      s: value,
-    });
+    setSensorNumber(value);
   }
 
   function changeCalibrate(value) {
     console.log(value);
-    setSensor({
-      ...sensor,
-      c: value,
-    });
+    setCalibrate(value);
   }
+
+  useEffect(() => {
+    setOutput({...sensor,"s": sensorNumber, "c": calibrate})
+  }, [sensor, calibrate, sensorNumber]);
 
   return (
     <div className="main-ttt">
@@ -51,14 +69,15 @@ function TTT() {
         <h2>Sensor {sensor.s}</h2>
         <MockData
           sensor={sensor}
+          calibrateSensor={calibrateSensor}
           onchangeValues={detectChange}
           onchangeSensor={changeSensor}
           onchangeCalibration={changeCalibrate}
         />
-        <pre>{JSON.stringify(sensor)}</pre>
+        <pre>{JSON.stringify(output)}</pre>
       </div>
       
-      <Quilt sensorData={sensor} />
+      <Quilt sensorCalibrate={calibrateSensor} sensorData={output} />
     </div>
   );
 }

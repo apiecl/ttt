@@ -20,7 +20,7 @@ export default function MockData({
         <MockRangeInput
           key={`channel-${i}`}
           min={0}
-          max={100}
+          max={1024}
           onchange={onchangeValues}
           channel={i}
           value={sensor[i.toString()]}
