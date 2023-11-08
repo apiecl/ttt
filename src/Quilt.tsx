@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { Graphics, Stage, SimpleRope } from "@pixi/react";
 
-function Quilt({ sensorData }) {
+function Quilt({ sensorData, sensorCalibrate }) {
   const dimensions = {
     w: 500,
     h: 500,
@@ -12,7 +12,6 @@ function Quilt({ sensorData }) {
   useCallback(() => {
     console.log(sensorData);
     setSensor(sensorData["s"]);
-    
   }, [sensorData]);
 
   const drawSensorA = useCallback(
@@ -23,12 +22,10 @@ function Quilt({ sensorData }) {
         const nsensors = 12;
         const rectsize = dimensions.w / nsensors;
         for (let i = 0; i < 12; i++) {
-          g.drawRect(
-            rectsize * i,
-            0,
-            rectsize,
-            (sensorData[i.toString()] * dimensions.h) / dimensions.h
-          );
+          const barHeight =
+            (sensorData[i.toString()] * dimensions.h) /
+            sensorCalibrate[i.toString()];
+          g.drawRect(rectsize * i, 0, rectsize, barHeight);
         }
       }
     },
@@ -43,12 +40,10 @@ function Quilt({ sensorData }) {
         const nsensors = 12;
         const rectsize = dimensions.w / nsensors;
         for (let i = 0; i < 12; i++) {
-          g.drawRect(
-            rectsize * i,
-            0,
-            rectsize,
-            (sensorData[i.toString()] * dimensions.h) / dimensions.h
-          );
+          const barHeight =
+            (sensorData[i.toString()] * dimensions.h) /
+            sensorCalibrate[i.toString()];
+          g.drawRect(rectsize * i, 0, rectsize, barHeight);
         }
       }
     },
