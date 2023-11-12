@@ -1,5 +1,5 @@
-import { useCallback, useState, useEffect } from "react";
-import { Graphics, Stage, SimpleRope } from "@pixi/react";
+import { useCallback, useState } from "react";
+import { Graphics } from "@pixi/react";
 
 function Quilt({ sensorData, sensorCalibrate }) {
   const dimensions = {
@@ -51,14 +51,10 @@ function Quilt({ sensorData, sensorCalibrate }) {
   );
 
   return (
-    <Stage
-      width={dimensions.w}
-      height={dimensions.h}
-      options={{ backgroundColor: 0x000000 }}
-    >
+    <>
       <Graphics draw={drawSensorA} />
       <Graphics draw={drawSensorB} />
-    </Stage>
+    </>
   );
 }
 

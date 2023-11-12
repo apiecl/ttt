@@ -1,11 +1,13 @@
 import MockData from "./MockData";
 import Quilt from "./Quilt";
+import Pompon from "./Pompon";
 import { useState, useEffect } from "react";
-import type { sensorOutput, sensorData, sensorNumber } from './types/types';
+import type { sensorOutput, sensorData, sensorNumber } from "./types/types";
+import TTTStage from "./TTTStage";
 
 function TTT() {
-  const initialMax:number = 1024;
-  
+  const initialMax: number = 204;
+
   const [sensor, setSensor] = useState<sensorData>({
     "0": initialMax,
     "1": initialMax,
@@ -60,7 +62,7 @@ function TTT() {
   }
 
   useEffect(() => {
-    setOutput({...sensor,"s": sensorNumber, "c": calibrate})
+    setOutput({ ...sensor, s: sensorNumber, c: calibrate });
   }, [sensor, calibrate, sensorNumber]);
 
   return (
@@ -76,8 +78,10 @@ function TTT() {
         />
         <pre>{JSON.stringify(output)}</pre>
       </div>
-      
-      <Quilt sensorCalibrate={calibrateSensor} sensorData={output} />
+
+      <TTTStage>
+        <Pompon sensorCalibrate={calibrateSensor} sensorData={output} />
+      </TTTStage>
     </div>
   );
 }
