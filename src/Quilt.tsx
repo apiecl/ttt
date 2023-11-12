@@ -1,11 +1,8 @@
 import { useCallback, useState } from "react";
 import { Graphics } from "@pixi/react";
 
-function Quilt({ sensorData, sensorCalibrate }) {
-  const dimensions = {
-    w: 500,
-    h: 500,
-  };
+function Quilt({ sensorData, sensorCalibrate, size }) {
+  
 
   const [sensor, setSensor] = useState(1);
 
@@ -20,35 +17,35 @@ function Quilt({ sensorData, sensorCalibrate }) {
         g.clear();
         g.beginFill(0x4adb71);
         const nsensors = 12;
-        const rectsize = dimensions.w / nsensors;
+        const rectsize = size.w / nsensors;
         for (let i = 0; i < 12; i++) {
           const barHeight =
-            (sensorData[i.toString()] * dimensions.h) /
+            (sensorData[i.toString()] * size.h) /
             sensorCalibrate[i.toString()];
           g.drawRect(rectsize * i, 0, rectsize, barHeight);
         }
       }
     },
-    [sensorData, dimensions.w]
+    [sensorData, size.w]
   );
 
   const drawSensorB = useCallback(
     (g) => {
       if (sensorData && sensorData["s"] === 2) {
         g.clear();
-        g.moveTo(0, dimensions.h );
+        g.moveTo(0, size.h );
         g.beginFill(0xd34157);
         const nsensors = 12;
-        const rectsize = dimensions.w / nsensors;
+        const rectsize = size.w / nsensors;
         for (let i = 0; i < 12; i++) {
           const barHeight =
-            (sensorData[i.toString()] * dimensions.h) /
+            (sensorData[i.toString()] * size.h) /
             sensorCalibrate[i.toString()];
           g.drawRect(rectsize * i, 0, rectsize, barHeight);
         }
       }
     },
-    [sensorData, dimensions.w]
+    [sensorData, size.w]
   );
 
   return (

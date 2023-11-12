@@ -14,8 +14,19 @@
   -webkit-text-size-adjust: 100%;
 }
 
+body {
+    padding: 0;
+    margin: 0;
+}
+
 .main-ttt {
     display: flex;
+}
+
+button#toggleControls {
+    position: absolute;
+    right: 12px;
+    top: 12px;
 }
 
 .control-debugger {
@@ -23,6 +34,11 @@
     max-width: 200px;
     border-right: 1px solid white;
     height: calc(100vh - 48px);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    background-color: #333;
     pre {
         max-width: 100%;
         overflow: hidden;

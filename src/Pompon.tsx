@@ -1,13 +1,10 @@
 import { useCallback, useState } from "react";
 import { Graphics } from "@pixi/react";
 
-function Pompon({ sensorData, sensorCalibrate }) {
-  const dimensions = {
-    w: 500,
-    h: 500,
-  };
+function Pompon({ sensorData, sensorCalibrate, size }) {
+  
 
-  const maxRadius = dimensions.w / 2;
+  const maxRadius = size.h / 2;
   const maxCalibrate = 500;
   const lineWidth = 24;
 
@@ -25,7 +22,7 @@ function Pompon({ sensorData, sensorCalibrate }) {
         g.lineStyle(lineWidth, 0xffd900, 0.5);
         const nsensors = 12;
         const angleUnit = 360 / nsensors;
-        const center = { x: dimensions.w / 2, y: dimensions.h / 2 };
+        const center = { x: size.w / 2, y: size.h / 2 };
 
         for (let i = 0; i < 12; i++) {
           g.moveTo(center.x, center.y);
@@ -38,7 +35,7 @@ function Pompon({ sensorData, sensorCalibrate }) {
         }
       }
     },
-    [sensorData, dimensions.w, dimensions.h, calculateRadius]
+    [sensorData, size.w, size.h, calculateRadius]
   );
 
   const drawSensorB = useCallback(
@@ -49,7 +46,7 @@ function Pompon({ sensorData, sensorCalibrate }) {
         g.lineStyle(lineWidth, 0x5f4bb6, 0.5);
         const nsensors = 12;
         const angleUnit = 360 / nsensors;
-        const center = { x: dimensions.w / 2, y: dimensions.h / 2 };
+        const center = { x: size.w / 2, y: size.h / 2 };
 
         for (let i = 0; i < 12; i++) {
           g.moveTo(center.x, center.y);
@@ -62,7 +59,7 @@ function Pompon({ sensorData, sensorCalibrate }) {
         }
       }
     },
-    [sensorData, dimensions.w, dimensions.h, calculateRadius]
+    [sensorData, size.w, size.h, calculateRadius]
   );
 
   return (

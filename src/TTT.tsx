@@ -7,6 +7,10 @@ import TTTStage from "./TTTStage";
 
 function TTT() {
   const initialMax: number = 204;
+  const size = {
+    w: window.innerWidth,
+    h: window.innerHeight
+  };
 
   const [sensor, setSensor] = useState<sensorData>({
     "0": initialMax,
@@ -42,6 +46,7 @@ function TTT() {
   const [sensorNumber, setSensorNumber] = useState<sensorNumber>(1);
   const [output, setOutput] = useState<sensorOutput>();
   const [randomize, setRandomize] = useState<boolean>(false);
+  const [showControls, setShowControls] = useState<boolean>(false);
 
   function detectChange(value, channel) {
     const curChannel = channel.toString();
@@ -97,8 +102,10 @@ function TTT() {
   }, [randomize]);
 
   return (
+    <>
+    <button id="toggleControls" onClick={()=> setShowControls(!showControls)}>controls</button>
     <div className="main-ttt">
-      <div className="control-debugger">
+      {showControls && <div className="control-debugger">
         <h2>Sensor {sensor.s}</h2>
         <MockData
           sensor={sensor}
@@ -109,13 +116,15 @@ function TTT() {
           onchangeRandom={changeRandom}
         />
         <pre>{JSON.stringify(output)}</pre>
-      </div>
-
-      <TTTStage>
-        <Quilt sensorCalibrate={calibrateSensor} sensorData={output} />
-        <Pompon sensorCalibrate={calibrateSensor} sensorData={output} />
+      </div>}
+      
+      
+      <TTTStage size={size}>
+        <Quilt size={size} sensorCalibrate={calibrateSensor} sensorData={output} />
+        <Pompon size={size} sensorCalibrate={calibrateSensor} sensorData={output} />
       </TTTStage>
     </div>
+    </>
   );
 }
 

@@ -1,8 +1,8 @@
 import { Stage } from "@pixi/react";
 
-function TTTStage({ children }) {
+function TTTStage({ children, size }) {
   return (
-    <Stage width={500} height={500} options={{ backgroundColor: "#000000" }}>
+    <Stage width={size.w} height={size.h} options={{ backgroundColor: 0x000000 }}>
       {children}
     </Stage>
   );
