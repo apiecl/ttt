@@ -7,6 +7,15 @@ function Pompon({ sensorData, sensorCalibrate }) {
     h: 500,
   };
 
+  const maxRadius = dimensions.w / 2;
+  const maxCalibrate = 500;
+
+  function calculateRadius(channelData) {
+    const unit = maxRadius / maxCalibrate;
+
+    return maxRadius - channelData * unit;
+  }
+
   const drawSensorA = useCallback(
     (g) => {
       if (sensorData && sensorData["s"] === 1) {
@@ -19,7 +28,7 @@ function Pompon({ sensorData, sensorCalibrate }) {
 
         for (let i = 0; i < 12; i++) {
           g.moveTo(center.x, center.y);
-          const radius = sensorData[i.toString()] - 300;
+          const radius = calculateRadius(sensorData[i.toString()]);
           const angle = angleUnit * i;
           const pointToX = radius * Math.sin(angle);
           const pointToY = radius * Math.cos(angle);
@@ -43,8 +52,8 @@ function Pompon({ sensorData, sensorCalibrate }) {
 
         for (let i = 0; i < 12; i++) {
           g.moveTo(center.x, center.y);
-          const radius = sensorData[i.toString()] - 300;
-          const angle = angleUnit + 10 * i;
+          const radius = calculateRadius(sensorData[i.toString()]);
+          const angle = angleUnit + 8 * i;
           const pointToX = radius * Math.sin(angle);
           const pointToY = radius * Math.cos(angle);
           console.log(angle, radius);
