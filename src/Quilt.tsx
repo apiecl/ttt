@@ -36,6 +36,7 @@ function Quilt({ sensorData, sensorCalibrate }) {
     (g) => {
       if (sensorData && sensorData["s"] === 2) {
         g.clear();
+        g.moveTo(0, dimensions.h );
         g.beginFill(0xd34157);
         const nsensors = 12;
         const rectsize = dimensions.w / nsensors;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function ToggleCalibrate({ onchangeCalibration }) {
+export default function Toggle({ onToggle, name }) {
   const [checked, setChecked] = useState(false);
 
   const toggleChange = (value) => {
@@ -8,19 +8,19 @@ export default function ToggleCalibrate({ onchangeCalibration }) {
   }
 
   useEffect(() => {
-    onchangeCalibration(checked);
+    onToggle(checked);
   }, [checked])
 
   return (
     <div>
     <input
-      name="togglecalibrate"
+      name={name}
       type="checkbox"
       value={false}
       defaultChecked={checked}
       onChange={() => toggleChange(!checked)}
     />
-    <label htmlFor="togglecalibrate">Toggle calibration</label>
+    <label htmlFor={name}>{name}</label>
     </div>
   );
 }

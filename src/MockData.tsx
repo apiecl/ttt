@@ -2,12 +2,13 @@ import { sensorData } from "./types/types";
 import { baseconfig } from "./conf/baseconfig";
 import { useState, useEffect } from "react";
 import MockRangeInput from "./mock/MockRangeInput";
-import ToggleCalibrate from "./ToggleCalibrate.tsx";
+import Toggle from "./Toggle.tsx";
 
 export default function MockData({
   onchangeValues,
   onchangeSensor,
   onchangeCalibration,
+  onchangeRandom,
   sensor,
 }) {
   const [mockData, setMockData] = useState<sensorData>();
@@ -57,7 +58,8 @@ export default function MockData({
         </div>
       </fieldset>
       <div>
-        <ToggleCalibrate onchangeCalibration={onchangeCalibration} />
+        <Toggle name="togglecalibrate" onToggle={onchangeCalibration} />
+        <Toggle name="togglerandom" onToggle={onchangeRandom} />
       </div>
     </div>
   );

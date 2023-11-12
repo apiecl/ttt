@@ -9,6 +9,7 @@ function Pompon({ sensorData, sensorCalibrate }) {
 
   const maxRadius = dimensions.w / 2;
   const maxCalibrate = 500;
+  const lineWidth = 24;
 
   function calculateRadius(channelData) {
     const unit = maxRadius / maxCalibrate;
@@ -21,7 +22,7 @@ function Pompon({ sensorData, sensorCalibrate }) {
       if (sensorData && sensorData["s"] === 1) {
         g.clear();
         g.beginFill(0x4adb71);
-        g.lineStyle(1, 0xffd900, 0.5);
+        g.lineStyle(lineWidth, 0xffd900, 0.5);
         const nsensors = 12;
         const angleUnit = 360 / nsensors;
         const center = { x: dimensions.w / 2, y: dimensions.h / 2 };
@@ -32,12 +33,12 @@ function Pompon({ sensorData, sensorCalibrate }) {
           const angle = angleUnit * i;
           const pointToX = radius * Math.sin(angle);
           const pointToY = radius * Math.cos(angle);
-          console.log(angle, radius);
+          
           g.lineTo(pointToX + center.x, pointToY + center.y);
         }
       }
     },
-    [sensorData, dimensions.w, dimensions.y]
+    [sensorData, dimensions.w, dimensions.h, calculateRadius]
   );
 
   const drawSensorB = useCallback(
@@ -45,7 +46,7 @@ function Pompon({ sensorData, sensorCalibrate }) {
       if (sensorData && sensorData["s"] === 2) {
         g.clear();
         g.beginFill(0x4adb71);
-        g.lineStyle(1, 0x5F4BB6, 0.5);
+        g.lineStyle(lineWidth, 0x5f4bb6, 0.5);
         const nsensors = 12;
         const angleUnit = 360 / nsensors;
         const center = { x: dimensions.w / 2, y: dimensions.h / 2 };
@@ -56,12 +57,12 @@ function Pompon({ sensorData, sensorCalibrate }) {
           const angle = angleUnit + 8 * i;
           const pointToX = radius * Math.sin(angle);
           const pointToY = radius * Math.cos(angle);
-          console.log(angle, radius);
+          
           g.lineTo(pointToX + center.x, pointToY + center.y);
         }
       }
     },
-    [sensorData, dimensions.w, dimensions.y]
+    [sensorData, dimensions.w, dimensions.h, calculateRadius]
   );
 
   return (

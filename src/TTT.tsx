@@ -41,6 +41,7 @@ function TTT() {
   const [calibrate, setCalibrate] = useState<boolean>(false);
   const [sensorNumber, setSensorNumber] = useState<sensorNumber>(1);
   const [output, setOutput] = useState<sensorOutput>();
+  const [randomize, setRandomize] = useState<boolean>(false);
 
   function detectChange(value, channel) {
     const curChannel = channel.toString();
@@ -52,18 +53,48 @@ function TTT() {
   }
 
   function changeSensor(value) {
-    console.log(value);
     setSensorNumber(value);
   }
 
   function changeCalibrate(value) {
-    console.log(value);
     setCalibrate(value);
+  }
+
+  function changeRandom(value) {
+    setRandomize(value);
+  }
+
+  function randomInt(min, max) { // min and max included 
+    return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
   useEffect(() => {
     setOutput({ ...sensor, s: sensorNumber, c: calibrate });
   }, [sensor, calibrate, sensorNumber]);
+
+  useEffect(() => {
+    if(randomize === true) {
+      const timer = setInterval(() => {
+        const tmpSensor = {};
+        for(let i = 0; i < 12; i++) {
+          tmpSensor[i.toString()] = randomInt(0, initialMax);
+        }
+        tmpSensor["s"] = randomInt(1, 2);
+        console.log(tmpSensor["s"]);
+        tmpSensor["c"] = false;
+        setOutput(tmpSensor)
+      }, 16.6 );
+      return () => clearInterval(timer)
+    } else {
+      const tmpSensor = {};
+      for(let i = 0; i < 12; i++) {
+        tmpSensor[i.toString()] = initialMax;
+      }
+      tmpSensor["s"] = 1;
+      tmpSensor["c"] = false;
+      setOutput(tmpSensor);
+    }
+  }, [randomize]);
 
   return (
     <div className="main-ttt">
@@ -75,11 +106,13 @@ function TTT() {
           onchangeValues={detectChange}
           onchangeSensor={changeSensor}
           onchangeCalibration={changeCalibrate}
+          onchangeRandom={changeRandom}
         />
         <pre>{JSON.stringify(output)}</pre>
       </div>
 
       <TTTStage>
+        <Quilt sensorCalibrate={calibrateSensor} sensorData={output} />
         <Pompon sensorCalibrate={calibrateSensor} sensorData={output} />
       </TTTStage>
     </div>
