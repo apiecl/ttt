@@ -5,7 +5,9 @@ import { sensorData, size, variant, variantNumber } from "./types/types";
 interface pomponProps {
   sensorData: sensorData,
   sensorCalibrate: boolean,
-  size: size
+  size: size,
+  lineWidth: number,
+  timeAlive: number
 }
 
 type graphics = {
@@ -19,9 +21,9 @@ type graphics = {
 function Pompon(props: pomponProps) {
   const maxRadius = props.size.h / 2;
   const maxCalibrate = 500;
-  const lineWidth = 1;
+  const lineWidth = props.lineWidth;
   //Time alive in miliseconds
-  const timeAlive = 3000;
+  const timeAlive = props.timeAlive;
   const nsensors = 12;
   const angleUnit = 360 / nsensors;
   const center = { x: props.size.w / 2, y: props.size.h / 2 };
@@ -44,7 +46,7 @@ function Pompon(props: pomponProps) {
         setStore(timeAlive);
       }
     }, 16.6);
-  }, [store]);
+  }, [store, timeAlive]);
 
   useCallback((g:graphics) => {
     if(store === 0) {
@@ -67,7 +69,7 @@ function Pompon(props: pomponProps) {
         g.lineTo(pointToX + center.x, pointToY + center.y);
       }
     },
-    [angleUnit, calculateRadius, center.x, center.y, props, store]
+    [angleUnit, calculateRadius, center.x, center.y, lineWidth, props.sensorData, store]
   );
 
   const drawSensorA = useCallback(

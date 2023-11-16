@@ -125,7 +125,8 @@ function TTT() {
         <pre>{JSON.stringify(output)}</pre>
       </div>}
       <TTTStage size={size}>
-        <Pompon size={size} sensorCalibrate={calibrate} sensorData={output} />
+        <Pompon lineWidth={20} timeAlive={600} size={size} sensorCalibrate={calibrate} sensorData={output} />
+        <Pompon lineWidth={1} timeAlive={3000} size={size} sensorCalibrate={calibrate} sensorData={output} />
       </TTTStage>
       
     </div>
