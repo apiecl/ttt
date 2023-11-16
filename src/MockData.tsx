@@ -1,35 +1,38 @@
-import { sensorData } from "./types/types";
 import { baseconfig } from "./conf/baseconfig";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import MockRangeInput from "./mock/MockRangeInput";
 import Toggle from "./Toggle.tsx";
+import { sensorData, variantNumber } from "./types/types.ts";
 
-export default function MockData({
-  onchangeValues,
-  onchangeSensor,
-  onchangeCalibration,
-  onchangeRandom,
-  sensor,
-}) {
-  const [mockData, setMockData] = useState<sensorData>();
-  const [rangeInputs, setRangeInputs] = useState<MockRangeInput[]>();
+interface mockDataProps {
+  onchangeValues: (value:number, channel:number) => void;
+  onchangeSensor: (value:number) => void;
+  onchangeCalibration: (value:boolean) => void;
+  sensor: sensorData;
+  calibrateSensor: sensorData;
+  onchangeRandom: (value:boolean) => void;
+}
+
+export default function MockData(dataProps:mockDataProps) {
+  const [rangeInputs, setRangeInputs] = useState<ReactNode[]>();
 
   useEffect(() => {
     const tmpinputs = [];
     for (let i = 0; i < baseconfig.noChannels; i++) {
+      const tmpValue:number = (dataProps.sensor as unknown as variantNumber)[i.toString()];
       tmpinputs.push(
         <MockRangeInput
           key={`channel-${i}`}
           min={0}
           max={209}
-          onchange={onchangeValues}
+          onchange={dataProps.onchangeValues}
           channel={i}
-          value={sensor[i.toString()]}
+          value={tmpValue}
         />
       );
     }
     setRangeInputs(tmpinputs);
-  }, [onchangeValues]);
+  }, [dataProps.onchangeValues, dataProps.sensor]);
 
   return (
     <div className="controls">
@@ -38,7 +41,7 @@ export default function MockData({
         Select sensor
         <div>
           <input
-            onChange={() => onchangeSensor(1)}
+            onChange={() => dataProps.onchangeSensor(1)}
             type="radio"
             id="sensor-1"
             name="sensor_number"
@@ -48,7 +51,7 @@ export default function MockData({
         </div>
         <div>
           <input
-            onChange={() => onchangeSensor(2)}
+            onChange={() => dataProps.onchangeSensor(2)}
             type="radio"
             id="sensor-2"
             name="sensor_number"
@@ -58,8 +61,8 @@ export default function MockData({
         </div>
       </fieldset>
       <div>
-        <Toggle name="togglecalibrate" onToggle={onchangeCalibration} />
-        <Toggle name="togglerandom" onToggle={onchangeRandom} />
+        <Toggle name="togglecalibrate" onToggle={dataProps.onchangeCalibration} />
+        <Toggle name="togglerandom" onToggle={dataProps.onchangeRandom} />
       </div>
     </div>
   );

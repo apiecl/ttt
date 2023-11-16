@@ -1,13 +1,12 @@
 import MockData from "./MockData";
-import Quilt from "./Quilt";
 import Pompon from "./Pompon";
 import { useState, useEffect } from "react";
-import type { sensorOutput, sensorData, sensorNumber } from "./types/types";
+import type { sensorOutput, sensorData, sensorNumber, variant, size } from "./types/types";
 import TTTStage from "./TTTStage";
 
 function TTT() {
   const initialMax: number = 204;
-  const size = {
+  const size:size = {
     w: window.innerWidth,
     h: window.innerHeight
   };
@@ -44,32 +43,47 @@ function TTT() {
 
   const [calibrate, setCalibrate] = useState<boolean>(false);
   const [sensorNumber, setSensorNumber] = useState<sensorNumber>(1);
-  const [output, setOutput] = useState<sensorOutput>();
+  const [output, setOutput] = useState<sensorOutput>({
+    "0": initialMax,
+    "1": initialMax,
+    "2": initialMax,
+    "3": initialMax,
+    "4": initialMax,
+    "5": initialMax,
+    "6": initialMax,
+    "7": initialMax,
+    "8": initialMax,
+    "9": initialMax,
+    "10": initialMax,
+    "11": initialMax,
+    "s": sensorNumber,
+    "c": calibrate
+  });
   const [randomize, setRandomize] = useState<boolean>(false);
   const [showControls, setShowControls] = useState<boolean>(false);
 
-  function detectChange(value, channel) {
+  function detectChange(value:number, channel:number):void {
     const curChannel = channel.toString();
-
     setSensor({
       ...sensor,
-      [curChannel]: parseInt(value),
+      [curChannel]: value,
     });
   }
 
-  function changeSensor(value) {
+  function changeSensor(value:number) {
     setSensorNumber(value);
   }
 
-  function changeCalibrate(value) {
+  function changeCalibrate(value:boolean) {
     setCalibrate(value);
+    setCalibrateSensor(calibrateSensor);
   }
 
-  function changeRandom(value) {
+  function changeRandom(value:boolean) {
     setRandomize(value);
   }
 
-  function randomInt(min, max) { // min and max included 
+  function randomInt(min:number, max:number) { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
@@ -77,36 +91,29 @@ function TTT() {
     setOutput({ ...sensor, s: sensorNumber, c: calibrate });
   }, [sensor, calibrate, sensorNumber]);
 
+  //Randomize
   useEffect(() => {
+    const tmpSensor:sensorOutput = output;
     if(randomize === true) {
       const timer = setInterval(() => {
-        const tmpSensor = {};
+       
         for(let i = 0; i < 12; i++) {
-          tmpSensor[i.toString()] = randomInt(0, initialMax);
+          (tmpSensor as unknown as variant)[i.toString()] = randomInt(0, initialMax);
         }
         tmpSensor["s"] = randomInt(1, 2);
-        console.log(tmpSensor["s"]);
         tmpSensor["c"] = false;
         setOutput(tmpSensor)
-      }, 16.6 );
+      }, 10 );
       return () => clearInterval(timer)
-    } else {
-      const tmpSensor = {};
-      for(let i = 0; i < 12; i++) {
-        tmpSensor[i.toString()] = initialMax;
-      }
-      tmpSensor["s"] = 1;
-      tmpSensor["c"] = false;
-      setOutput(tmpSensor);
     }
-  }, [randomize]);
+  }, [output, randomize]);
 
   return (
     <>
     <button id="toggleControls" onClick={()=> setShowControls(!showControls)}>controls</button>
     <div className="main-ttt">
       {showControls && <div className="control-debugger">
-        <h2>Sensor {sensor.s}</h2>
+        <h2>Sensor {(sensor as unknown as variant)["s"]}</h2>
         <MockData
           sensor={sensor}
           calibrateSensor={calibrateSensor}
@@ -117,12 +124,10 @@ function TTT() {
         />
         <pre>{JSON.stringify(output)}</pre>
       </div>}
-      
-      
       <TTTStage size={size}>
-        <Quilt size={size} sensorCalibrate={calibrateSensor} sensorData={output} />
-        <Pompon size={size} sensorCalibrate={calibrateSensor} sensorData={output} />
+        <Pompon size={size} sensorCalibrate={calibrate} sensorData={output} />
       </TTTStage>
+      
     </div>
     </>
   );

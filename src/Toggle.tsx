@@ -1,26 +1,31 @@
 import { useState, useEffect } from "react";
 
-export default function Toggle({ onToggle, name }) {
-  const [checked, setChecked] = useState(false);
+interface toggleProps {
+  onToggle: (value:boolean) => void;
+  name: string
+}
 
-  const toggleChange = (value) => {
+export default function Toggle(props:toggleProps) {
+  const [checked, setChecked] = useState<boolean>(false);
+
+  const toggleChange = (value:boolean) => {
     setChecked(value);
   }
 
   useEffect(() => {
-    onToggle(checked);
-  }, [checked])
+    props.onToggle(checked);
+  }, [checked, props])
 
   return (
     <div>
     <input
-      name={name}
+      name={props.name}
       type="checkbox"
-      value={false}
+      value={0}
       defaultChecked={checked}
       onChange={() => toggleChange(!checked)}
     />
-    <label htmlFor={name}>{name}</label>
+    <label htmlFor={props.name}>{props.name}</label>
     </div>
   );
 }

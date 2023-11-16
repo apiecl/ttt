@@ -1,57 +1,36 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { Graphics } from "@pixi/react";
+import { sensorData, size, variant, variantNumber } from "./types/types";
 
-function Quilt({ sensorData, sensorCalibrate, size }) {
-  
+interface quiltProps {
+  sensorData: sensorData,
+  sensorCalibrate: boolean,
+  size: size
+}
 
-  const [sensor, setSensor] = useState(1);
-
-  useCallback(() => {
-    console.log(sensorData);
-    setSensor(sensorData["s"]);
-  }, [sensorData]);
+function Quilt(props:quiltProps) {
 
   const drawSensorA = useCallback(
-    (g) => {
-      if (sensorData && sensorData["s"] === 1) {
+    (g: { clear: () => void; beginFill: (arg0: number) => void; drawRect: (arg0: number, arg1: number, arg2: number, arg3: number) => void; }) => {
+      if (props.sensorData && (props.sensorData as unknown as variant)["s"] === 1) {
         g.clear();
         g.beginFill(0x4adb71);
         const nsensors = 12;
-        const rectsize = size.w / nsensors;
+        const rectsize = props.size.w / nsensors;
         for (let i = 0; i < 12; i++) {
           const barHeight =
-            (sensorData[i.toString()] * size.h) /
-            sensorCalibrate[i.toString()];
+            ((props.sensorData as unknown as variantNumber)[i.toString()] * props.size.h) /
+            (props.sensorCalibrate as unknown as variantNumber)[i.toString()];
           g.drawRect(rectsize * i, 0, rectsize, barHeight);
         }
       }
     },
-    [sensorData, size.w]
-  );
-
-  const drawSensorB = useCallback(
-    (g) => {
-      if (sensorData && sensorData["s"] === 2) {
-        g.clear();
-        g.moveTo(0, size.h );
-        g.beginFill(0xd34157);
-        const nsensors = 12;
-        const rectsize = size.w / nsensors;
-        for (let i = 0; i < 12; i++) {
-          const barHeight =
-            (sensorData[i.toString()] * size.h) /
-            sensorCalibrate[i.toString()];
-          g.drawRect(rectsize * i, 0, rectsize, barHeight);
-        }
-      }
-    },
-    [sensorData, size.w]
+    [props.sensorCalibrate, props.sensorData, props.size.h, props.size.w]
   );
 
   return (
     <>
       <Graphics draw={drawSensorA} />
-      <Graphics draw={drawSensorB} />
     </>
   );
 }

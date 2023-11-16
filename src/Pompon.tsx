@@ -1,65 +1,95 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Graphics } from "@pixi/react";
+import { sensorData, size, variant, variantNumber } from "./types/types";
 
-function Pompon({ sensorData, sensorCalibrate, size }) {
-  
+interface pomponProps {
+  sensorData: sensorData,
+  sensorCalibrate: boolean,
+  size: size
+}
 
-  const maxRadius = size.h / 2;
+type graphics = {
+    clear: ()=>void;
+    lineStyle: (arg0: number, arg1: number, arg2: number) => void;
+    moveTo: (arg0: number, arg1: number) => void;
+    lineTo: (arg0: number, arg1: number) => void; 
+}
+
+
+function Pompon(props: pomponProps) {
+  const maxRadius = props.size.h / 2;
   const maxCalibrate = 500;
-  const lineWidth = 24;
+  const lineWidth = 1;
+  //Time alive in miliseconds
+  const timeAlive = 3000;
+  const nsensors = 12;
+  const angleUnit = 360 / nsensors;
+  const center = { x: props.size.w / 2, y: props.size.h / 2 };
 
-  function calculateRadius(channelData) {
-    const unit = maxRadius / maxCalibrate;
+  const calculateRadius = useCallback(
+    (channelData: number) => {
+      const unit = maxRadius / maxCalibrate;
+      return maxRadius - channelData * unit;
+    },
+    [maxRadius]
+  );
 
-    return maxRadius - channelData * unit;
-  }
+  const [store, setStore] = useState<number>(timeAlive);
 
-  const drawSensorA = useCallback(
-    (g) => {
-      if (sensorData && sensorData["s"] === 1) {
-        g.clear();
-        g.beginFill(0x4adb71);
-        g.lineStyle(lineWidth, 0xffd900, 0.5);
-        const nsensors = 12;
-        const angleUnit = 360 / nsensors;
-        const center = { x: size.w / 2, y: size.h / 2 };
+  useEffect(() => {
+    setTimeout(() => {
+      if (store > 0) {
+        setStore(store - 1);
+      } else {
+        setStore(timeAlive);
+      }
+    }, 16.6);
+  }, [store]);
 
-        for (let i = 0; i < 12; i++) {
-          g.moveTo(center.x, center.y);
-          const radius = calculateRadius(sensorData[i.toString()]);
-          const angle = angleUnit * i;
-          const pointToX = radius * Math.sin(angle);
-          const pointToY = radius * Math.cos(angle);
-          
-          g.lineTo(pointToX + center.x, pointToY + center.y);
-        }
+  useCallback((g:graphics) => {
+    if(store === 0) {
+      g.clear();
+    }
+    
+  }, [store])
+
+  const drawLine = useCallback(
+    (g: graphics, color: number) => {
+      for (let i = 0; i < 12; i++) {
+        g.lineStyle(lineWidth, color, store * 0.01);
+        g.moveTo(center.x, center.y);
+        const sensorValue = (props.sensorData as unknown as variantNumber)[i.toString()];
+        const radius = calculateRadius(sensorValue);
+        const angle = angleUnit * i + store;
+        const pointToX = radius * Math.sin(angle);
+        const pointToY = radius * Math.cos(angle);
+
+        g.lineTo(pointToX + center.x, pointToY + center.y);
       }
     },
-    [sensorData, size.w, size.h, calculateRadius]
+    [angleUnit, calculateRadius, center.x, center.y, props, store]
+  );
+
+  const drawSensorA = useCallback(
+    (g:graphics) => {
+      if (props.sensorData && (props.sensorData as unknown as variant)["s"] === 1) {
+         
+          drawLine(g, 0xffd900);
+        
+      }
+    },
+    [props.sensorData, drawLine]
   );
 
   const drawSensorB = useCallback(
-    (g) => {
-      if (sensorData && sensorData["s"] === 2) {
-        g.clear();
-        g.beginFill(0x4adb71);
-        g.lineStyle(lineWidth, 0x5f4bb6, 0.5);
-        const nsensors = 12;
-        const angleUnit = 360 / nsensors;
-        const center = { x: size.w / 2, y: size.h / 2 };
-
-        for (let i = 0; i < 12; i++) {
-          g.moveTo(center.x, center.y);
-          const radius = calculateRadius(sensorData[i.toString()]);
-          const angle = angleUnit + 8 * i;
-          const pointToX = radius * Math.sin(angle);
-          const pointToY = radius * Math.cos(angle);
+    (g: graphics) => {
+      if (props.sensorData && (props.sensorData as unknown as variant)["s"] === 2) {
           
-          g.lineTo(pointToX + center.x, pointToY + center.y);
-        }
+          drawLine(g, 0x5f4bb6);
+        
       }
     },
-    [sensorData, size.w, size.h, calculateRadius]
+    [props.sensorData, drawLine]
   );
 
   return (

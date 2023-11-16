@@ -11,7 +11,7 @@ export interface sensorOutput {
   "9": number;
   "10": number;
   "11": number;
-  "s": 1 | 2;
+  "s": sensorNumber;
   "c": boolean;
 }
 
@@ -30,6 +30,14 @@ export interface sensorData {
   "11": number;
 }
 
+export interface variant {
+  [key: string]: number | boolean
+}
+
+export interface variantNumber {
+  [key: string]: number
+}
+
 export enum sensorNumber {
   One = 1,
   Two = 2,
@@ -38,3 +46,8 @@ export enum sensorNumber {
 export type configuration = {
   noChannels: number;
 };
+
+export type size = {
+  w: number,
+  h: number
+}
