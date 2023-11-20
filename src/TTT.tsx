@@ -37,12 +37,14 @@ function TTT() {
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
-    socket.on('data', onDataReceived);
+    socket.on('data-processed', onDataReceived);
+    socket.on('data-random', onDataReceived);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      socket.off('data', onDataReceived);
+      socket.off('data-processed', onDataReceived);
+      socket.off('data-random', onDataReceived);
     }
   }, []);
 
