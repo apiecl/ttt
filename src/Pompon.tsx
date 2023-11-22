@@ -1,75 +1,52 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { Graphics } from "@pixi/react";
 import {
   position,
-  sensorData,
+  sensorOutput,
   size,
   variant,
   variantNumber,
 } from "./types/types";
 import { Persistent } from "./Persistent";
+import { calcPos, calcRadius } from "./utils/utils";
 
 interface pomponProps {
-  sensorData: sensorData;
-  sensorCalibrate: boolean;
+  sensorData: sensorOutput;
+  sensorCalibrate: sensorOutput;
   size: size;
   lineWidth: number;
-  timeAlive: number;
 }
 
 type graphics = {
   clear: () => void;
-  lineStyle: (arg0: number, arg1: number, arg2: number) => void;
-  moveTo: (arg0: number, arg1: number) => void;
-  lineTo: (arg0: number, arg1: number) => void;
+  lineStyle: (width: number, color: number, alpha: number) => void;
+  moveTo: (x: number, y: number) => void;
+  lineTo: (x: number, y: number) => void;
 };
 
 function Pompon(props: pomponProps) {
-  const maxRadius = props.size.h / 2;
-  const maxCalibrate = 200;
-  const lineWidth = props.lineWidth;
   //Time alive in miliseconds
-  const timeAlive = props.timeAlive;
   const nsensors = 12;
   const angleUnit = 360 / nsensors;
   const center = { x: props.size.w / 2, y: props.size.h / 2 };
 
   const calculateRadius = useCallback(
-    (channelData: number) => {
-      const unit = maxRadius / maxCalibrate;
-      return maxRadius - channelData * unit;
+    (channelData: number, calValue:number) => {
+      return calcRadius(channelData, calValue, props.size.h);
     },
-    [maxRadius],
+    [props.size.h],
   );
 
-  const [store, setStore] = useState<number>(timeAlive);
+
   const [points, setPoints] = useState<position[]>();
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (store > 0) {
-        setStore(store - 1);
-      } else {
-        setStore(timeAlive);
-      }
-    }, 16.6);
-  }, [store, timeAlive]);
-
-  useCallback(
-    (g: graphics) => {
-      if (store === 0) {
-        g.clear();
-      }
-    },
-    [store],
-  );
 
   const drawLine = useCallback(
     (g: graphics, color: number, sensorNo: number) => {
       g.clear();
       const tmpPositions: position[] = [];
       for (let i = 0; i < 12; i++) {
-        g.lineStyle(lineWidth, color, store * 0.01);
+        g.lineStyle(props.lineWidth, color, 0.2);
         g.moveTo(center.x, center.y);
         const sensorValue = (props.sensorData as unknown as variantNumber)[
           i.toString()
@@ -78,15 +55,11 @@ function Pompon(props: pomponProps) {
           props.sensorCalibrate as unknown as variantNumber
         )[i.toString()];
         if (sensorValue !== calibrateValue) {
-          const radius = calculateRadius(sensorValue);
+          const radius = calculateRadius(sensorValue, calibrateValue);
           const angle = angleUnit * i + sensorNo * 5;
-          const pointToX = radius * Math.sin(angle);
-          const pointToY = radius * Math.cos(angle);
-
-          const posX = radius * Math.sin(angle);
-          const posY = radius * Math.cos(angle);
-          tmpPositions.push({ x: posX + center.x, y: posY + center.y });
-          g.lineTo(pointToX + center.x, pointToY + center.y);
+          const pointPos = calcPos(radius, angle);
+          tmpPositions.push({ x: pointPos.x + center.x, y: pointPos.y + center.y });
+          g.lineTo(pointPos.x + center.x, pointPos.y + center.y);
         }
       }
       setPoints(tmpPositions);
@@ -96,10 +69,9 @@ function Pompon(props: pomponProps) {
       calculateRadius,
       center.x,
       center.y,
-      lineWidth,
+      props.lineWidth,
       props.sensorCalibrate,
       props.sensorData,
-      store,
     ],
   );
 
@@ -132,7 +104,7 @@ function Pompon(props: pomponProps) {
       <Graphics draw={drawSensorA}></Graphics>
       <Graphics draw={drawSensorB}></Graphics>
       {points?.map((point, idx) => (
-        <Persistent key={`point-${idx}`} position={point} size={20} />
+        <Persistent key={`point-${idx}`} position={point} size={5} />
       ))}
     </>
   );
