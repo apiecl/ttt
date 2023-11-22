@@ -1,7 +1,8 @@
 import MockData from "./MockData";
 import Pompon from "./Pompon";
 import { useState, useEffect } from "react";
-import { socket } from "./socket";
+//import { socket } from "./socket";
+import axios from "axios";
 
 import type {
   sensorOutput,
@@ -19,33 +20,39 @@ function TTT() {
     h: window.innerHeight,
   };
 
-  const [isConnected, setIsConnected] = useState(socket.connected);
+  //const [isConnected, setIsConnected] = useState(socket.connected);
 
   useEffect(() => {
-    function onConnect() {
-      setIsConnected(true);
-    }
+    // function onConnect() {
+    //   setIsConnected(true);
+    // }
 
-    function onDisconnect() {
-      setIsConnected(false);
-      setOutput({...initialValues,s:sensorNumber,c:calibrate});
-    }
+    // function onDisconnect() {
+    //   setIsConnected(false);
+    //   setOutput({...initialValues,s:sensorNumber,c:calibrate});
+    // }
 
-    function onDataReceived(value:sensorOutput) {
-      setOutput(value);
-    }
+    // function onDataReceived(value:sensorOutput) {
+    //   setOutput(value);
+    // }
 
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('data-processed', onDataReceived);
-    socket.on('data-random', onDataReceived);
+    // socket.on('connect', onConnect);
+    // socket.on('disconnect', onDisconnect);
+    // socket.on('data-processed', onDataReceived);
+    // socket.on('data-random', onDataReceived);
 
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      socket.off('data-processed', onDataReceived);
-      socket.off('data-random', onDataReceived);
-    }
+    // return () => {
+    //   socket.off('connect', onConnect);
+    //   socket.off('disconnect', onDisconnect);
+    //   socket.off('data-processed', onDataReceived);
+    //   socket.off('data-random', onDataReceived);
+    // }
+    setInterval(() => {
+      axios.get('http://localhost:3000').then((res) => {
+      setOutput(res.data);
+    });
+    }, 16.6);
+    
   }, []);
 
   const initialValues:sensorData = {
@@ -112,7 +119,7 @@ function TTT() {
         {showControls && (
           <div className="control-debugger">
             <h2>Sensor {(sensor as unknown as variant)["s"]}</h2>
-            <p>Socket connection: {isConnected ? 'OFF' : 'ON'}</p>
+            
             <MockData
               sensor={sensor}
               calibrateSensor={calibrateSensor}

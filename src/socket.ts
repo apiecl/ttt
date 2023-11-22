@@ -1,3 +1,6 @@
 import {io} from "socket.io-client";
-const URL = "http://localhost:8989";
-export const socket = io(URL);
+const URL = "ws://localhost:3000";
+export const socket = io(URL, {
+    path: '/',
+    transports: ['websocket']
+});
