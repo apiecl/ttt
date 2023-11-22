@@ -1,6 +1,13 @@
 import { useCallback, useState, useEffect } from "react";
 import { Graphics } from "@pixi/react";
-import { sensorData, size, variant, variantNumber } from "./types/types";
+import {
+  position,
+  sensorData,
+  size,
+  variant,
+  variantNumber,
+} from "./types/types";
+import { Persistent } from "./Persistent";
 
 interface pomponProps {
   sensorData: sensorData;
@@ -19,7 +26,7 @@ type graphics = {
 
 function Pompon(props: pomponProps) {
   const maxRadius = props.size.h / 2;
-  const maxCalibrate = 500;
+  const maxCalibrate = 200;
   const lineWidth = props.lineWidth;
   //Time alive in miliseconds
   const timeAlive = props.timeAlive;
@@ -36,6 +43,7 @@ function Pompon(props: pomponProps) {
   );
 
   const [store, setStore] = useState<number>(timeAlive);
+  const [points, setPoints] = useState<position[]>();
 
   useEffect(() => {
     setTimeout(() => {
@@ -57,20 +65,31 @@ function Pompon(props: pomponProps) {
   );
 
   const drawLine = useCallback(
-    (g: graphics, color: number) => {
+    (g: graphics, color: number, sensorNo: number) => {
+      g.clear();
+      const tmpPositions: position[] = [];
       for (let i = 0; i < 12; i++) {
         g.lineStyle(lineWidth, color, store * 0.01);
         g.moveTo(center.x, center.y);
         const sensorValue = (props.sensorData as unknown as variantNumber)[
           i.toString()
         ];
-        const radius = calculateRadius(sensorValue);
-        const angle = angleUnit * i + store;
-        const pointToX = radius * Math.sin(angle);
-        const pointToY = radius * Math.cos(angle);
+        const calibrateValue = (
+          props.sensorCalibrate as unknown as variantNumber
+        )[i.toString()];
+        if (sensorValue !== calibrateValue) {
+          const radius = calculateRadius(sensorValue);
+          const angle = angleUnit * i + sensorNo * 5;
+          const pointToX = radius * Math.sin(angle);
+          const pointToY = radius * Math.cos(angle);
 
-        g.lineTo(pointToX + center.x, pointToY + center.y);
+          const posX = radius * Math.sin(angle);
+          const posY = radius * Math.cos(angle);
+          tmpPositions.push({ x: posX + center.x, y: posY + center.y });
+          g.lineTo(pointToX + center.x, pointToY + center.y);
+        }
       }
+      setPoints(tmpPositions);
     },
     [
       angleUnit,
@@ -78,6 +97,7 @@ function Pompon(props: pomponProps) {
       center.x,
       center.y,
       lineWidth,
+      props.sensorCalibrate,
       props.sensorData,
       store,
     ],
@@ -89,7 +109,7 @@ function Pompon(props: pomponProps) {
         props.sensorData &&
         (props.sensorData as unknown as variant)["s"] === 1
       ) {
-        drawLine(g, 0xffd900);
+        drawLine(g, 0xffd900, 1);
       }
     },
     [props.sensorData, drawLine],
@@ -101,7 +121,7 @@ function Pompon(props: pomponProps) {
         props.sensorData &&
         (props.sensorData as unknown as variant)["s"] === 2
       ) {
-        drawLine(g, 0x5f4bb6);
+        drawLine(g, 0x5f4bb6, 2);
       }
     },
     [props.sensorData, drawLine],
@@ -111,6 +131,9 @@ function Pompon(props: pomponProps) {
     <>
       <Graphics draw={drawSensorA}></Graphics>
       <Graphics draw={drawSensorB}></Graphics>
+      {points?.map((point, idx) => (
+        <Persistent key={`point-${idx}`} position={point} size={20} />
+      ))}
     </>
   );
 }

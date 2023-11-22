@@ -10,7 +10,6 @@ interface mockDataProps {
   onchangeCalibration: (value:boolean) => void;
   sensor: sensorData;
   calibrateSensor: sensorData;
-  onchangeRandom: (value:boolean) => void;
 }
 
 export default function MockData(dataProps:mockDataProps) {
@@ -62,7 +61,6 @@ export default function MockData(dataProps:mockDataProps) {
       </fieldset>
       <div>
         <Toggle name="togglecalibrate" onToggle={dataProps.onchangeCalibration} />
-        <Toggle name="togglerandom" onToggle={dataProps.onchangeRandom} />
       </div>
     </div>
   );
