@@ -1,9 +1,8 @@
 # TTT
 
-TODO
+Depends on ttt-server
 
-- Randomize data
-- Animate data
-- Add all sensors output
-- Add websocket connector
+To use:
 
+- npm install && npm run build
+- npm run serve
