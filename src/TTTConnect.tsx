@@ -2,9 +2,10 @@ import { ReactNode, useEffect, useState } from "react";
 import axios from "axios";
 import { TTT } from "./TTT";
 import type { sensorOutput } from "./types/types";
+import { io } from "socket.io-client";
 
 export function TTTConnect(): ReactNode {
-  const conntype = "fetch";
+  const socket = true;
 
   const initialMax: number = 204;
 
@@ -50,7 +51,7 @@ export function TTTConnect(): ReactNode {
   }, [seconds])
 
   useEffect(() => {
-    if (conntype === "fetch") {
+    if (!socket) {
       setInterval(() => {
         axios.get("http://localhost:3000").then((res) => {
           if (res.data.c === true) {
@@ -60,8 +61,14 @@ export function TTTConnect(): ReactNode {
           }
         });
       }, 33.3);
+    } else {
+        console.log('client socket');
+        const clientsocket = io('http://localhost:3000');
+        clientsocket.on('data-parsed', (data) => {
+            setOutput(data);
+        });
     }
-  }, [conntype]);
+  }, [socket]);
 
   return (
     <TTT calValues={calValues} output={output} oldOutput={oldOutput}></TTT>
