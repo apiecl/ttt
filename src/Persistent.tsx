@@ -1,36 +1,33 @@
 import { Graphics } from "@pixi/react";
 import { position } from "./types/types";
-import { ComponentProps, useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 
 interface persistentProps {
-    timeAlive: number;
     position: position;
+    size: number
 }
-type Draw = ComponentProps<typeof Graphics>['draw'];
+type graphics = {
+    clear: () => void;
+    beginFill: (color: number) => void;
+    drawCircle: (x: number, y: number, size: number) => void;
+    endFill: () => void;
+  };
 
 export function Persistent(props:persistentProps) {
-    console.log(props);
-    const [size, setSize] = useState<number>(0);
-    const [time, setTime] = useState<number>(props.timeAlive);
+    
+    
+   
 
-    useEffect(() => {
-        setInterval(() => {
-            while(time > 0) {
-                setTime(time-1);
-            }
-        }, 16.6);
-        
-    }, [time]);
-
-    useEffect(() => {
-        setSize(time / 5);
-    }, [time]);
-
-    const drawCircle = useCallback<Draw>((g) => {
-        g.drawCircle(size, props.position.x, props.position.y);
-    }, [size, props]);
+    const drawCircle = useCallback((g:graphics) => {
+        g;
+        g.clear();
+        g.beginFill(0xcb2f5c);
+        g.drawCircle(props.position.x, props.position.y, props.size);
+        g.endFill();
+    },[props]);
 
     return(
-        <Graphics draw={drawCircle}></Graphics>
+        <Graphics draw={drawCircle} />
     );
 }
+

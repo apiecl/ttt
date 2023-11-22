@@ -28,10 +28,10 @@ function TTT() {
 
     function onDisconnect() {
       setIsConnected(false);
+      setOutput({...initialValues,s:sensorNumber,c:calibrate});
     }
 
     function onDataReceived(value:sensorOutput) {
-      console.log(value);
       setOutput(value);
     }
 
@@ -48,7 +48,7 @@ function TTT() {
     }
   }, []);
 
-  const [sensor, setSensor] = useState<sensorData>({
+  const initialValues:sensorData = {
     "0": initialMax,
     "1": initialMax,
     "2": initialMax,
@@ -61,42 +61,20 @@ function TTT() {
     "9": initialMax,
     "10": initialMax,
     "11": initialMax,
-  });
+  }
 
-  const [calibrateSensor, setCalibrateSensor] = useState<sensorData>({
-    "0": initialMax,
-    "1": initialMax,
-    "2": initialMax,
-    "3": initialMax,
-    "4": initialMax,
-    "5": initialMax,
-    "6": initialMax,
-    "7": initialMax,
-    "8": initialMax,
-    "9": initialMax,
-    "10": initialMax,
-    "11": initialMax,
-  });
+  const [sensor, setSensor] = useState<sensorData>(initialValues);
+
+  const [calibrateSensor, setCalibrateSensor] = useState<sensorData>(initialValues);
 
   const [calibrate, setCalibrate] = useState<boolean>(false);
   const [sensorNumber, setSensorNumber] = useState<sensorNumber>(1);
   const [output, setOutput] = useState<sensorOutput>({
-    "0": initialMax,
-    "1": initialMax,
-    "2": initialMax,
-    "3": initialMax,
-    "4": initialMax,
-    "5": initialMax,
-    "6": initialMax,
-    "7": initialMax,
-    "8": initialMax,
-    "9": initialMax,
-    "10": initialMax,
-    "11": initialMax,
+    ...initialValues,
     s: sensorNumber,
     c: calibrate,
   });
-  const [randomize, setRandomize] = useState<boolean>(false);
+  
   const [showControls, setShowControls] = useState<boolean>(false);
 
   function detectChange(value: number, channel: number): void {
@@ -116,37 +94,11 @@ function TTT() {
     setCalibrateSensor(calibrateSensor);
   }
 
-  function changeRandom(value: boolean) {
-    setRandomize(value);
-  }
-
-  function randomInt(min: number, max: number) {
-    // min and max included
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
-
   useEffect(() => {
     setOutput({ ...sensor, s: sensorNumber, c: calibrate });
   }, [sensor, calibrate, sensorNumber]);
 
-  //Randomize
-  useEffect(() => {
-    const tmpSensor: sensorOutput = output;
-    if (randomize === true) {
-      const timer = setInterval(() => {
-        for (let i = 0; i < 12; i++) {
-          (tmpSensor as unknown as variant)[i.toString()] = randomInt(
-            0,
-            initialMax,
-          );
-        }
-        tmpSensor["s"] = randomInt(1, 2);
-        tmpSensor["c"] = false;
-        setOutput(tmpSensor);
-      }, 10);
-      return () => clearInterval(timer);
-    }
-  }, [output, randomize]);
+
 
   return (
     <>
@@ -167,21 +119,20 @@ function TTT() {
               onchangeValues={detectChange}
               onchangeSensor={changeSensor}
               onchangeCalibration={changeCalibrate}
-              onchangeRandom={changeRandom}
             />
             <pre>{JSON.stringify(output)}</pre>
           </div>
         )}
         <TTTStage size={size}>
           <Pompon
-            lineWidth={20}
+            lineWidth={8}
             timeAlive={1000}
             size={size}
             sensorCalibrate={calibrate}
             sensorData={output}
           />
           <Pompon
-            lineWidth={4}
+            lineWidth={10}
             timeAlive={3000}
             size={size}
             sensorCalibrate={calibrate}
