@@ -20,33 +20,7 @@ function TTT() {
     h: window.innerHeight,
   };
 
-  //const [isConnected, setIsConnected] = useState(socket.connected);
-
   useEffect(() => {
-    // function onConnect() {
-    //   setIsConnected(true);
-    // }
-
-    // function onDisconnect() {
-    //   setIsConnected(false);
-    //   setOutput({...initialValues,s:sensorNumber,c:calibrate});
-    // }
-
-    // function onDataReceived(value:sensorOutput) {
-    //   setOutput(value);
-    // }
-
-    // socket.on('connect', onConnect);
-    // socket.on('disconnect', onDisconnect);
-    // socket.on('data-processed', onDataReceived);
-    // socket.on('data-random', onDataReceived);
-
-    // return () => {
-    //   socket.off('connect', onConnect);
-    //   socket.off('disconnect', onDisconnect);
-    //   socket.off('data-processed', onDataReceived);
-    //   socket.off('data-random', onDataReceived);
-    // }
     setInterval(() => {
       axios.get('http://localhost:3000').then((res) => {
       setOutput(res.data);
