@@ -1,7 +1,6 @@
-import { Graphics } from "@pixi/react";
+import { Container, Graphics } from "@pixi/react";
 import { useCallback } from "react";
-import { sensorData, variantNumber } from "./types/types";
-import { calcPos, calcRadius } from "./utils/utils";
+import { colors, sensorData, variantNumber } from "./types/types";
 
 type graphics = {
   clear: () => void;
@@ -11,28 +10,37 @@ type graphics = {
 };
 
 interface prevpointProps {
-    previous: sensorData,
-    height: number,
-    width: number
+  previous: sensorData;
+  height: number;
+  width: number;
+  factor?: number;
+  color: colors
 }
 
-export function PrevPoints(props:prevpointProps) {
-const center = { x: props.width / 2, y: props.height / 2 };
-  const drawPoints = useCallback((g: graphics) => {
-    for (let i = 0; i < 12; i++) {
-      if ((props.previous as unknown as variantNumber)[i] !== undefined) {
-        const channelData = (props.previous as unknown as variantNumber)[i];
-        g;
-        g.clear();
-        g.beginFill(0xcb2f5c);
-        const radius = calcRadius(channelData, 50, props.height);
-        const angle = 30 * i;
-        const pos = calcPos(radius, angle);
-        g.drawCircle(pos.x + center.x , pos.y + center.y, 10);
-        g.endFill();
+export function PrevPoints(props: prevpointProps) {
+  const center = { x: props.width / 2, y: props.height / 2 };
+  const drawPoints = useCallback(
+    (g: graphics) => {
+      for (let i = 0; i < 12; i++) {
+        if ((props.previous as unknown as variantNumber)[i] !== undefined) {
+          let channelData = (props.previous as unknown as variantNumber)[i];
+          if(props.factor) {
+            channelData = channelData / props.factor;
+          }
+          g;
+          g.clear();
+          g.beginFill(props.color);
+          g.drawCircle(center.x, center.y, channelData);
+          g.endFill();
+        }
       }
-    }
-  }, [center.x, center.y, props.height, props.previous]);
+    },
+    [center.x, center.y, props.previous],
+  );
 
-  return <Graphics draw={drawPoints}></Graphics>;
+  return (
+    <Container>
+      <Graphics draw={drawPoints}></Graphics>
+    </Container>
+  );
 }

@@ -1,10 +1,11 @@
 import { Graphics } from "@pixi/react";
-import { position } from "./types/types";
-import { useCallback} from "react";
+import { position, colors } from "./types/types";
+import { useCallback } from "react";
 
 interface persistentProps {
   position: position;
   size: number;
+  color: colors;
 }
 type graphics = {
   clear: () => void;
@@ -18,16 +19,12 @@ export function Persistent(props: persistentProps) {
     (g: graphics) => {
       g;
       g.clear();
-      g.beginFill(0xcb2f5c);
+      g.beginFill(props.color);
       g.drawCircle(props.position.x, props.position.y, props.size);
       g.endFill();
     },
     [props],
   );
 
-  return (
-    <>
-      <Graphics draw={drawCircle} />
-    </>
-  );
+  return <Graphics draw={drawCircle} />;
 }

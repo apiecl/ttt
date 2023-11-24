@@ -1,13 +1,14 @@
 import Pompon from "./Pompon";
 import { ReactNode } from "react";
 
-import type { sensorOutput, size } from "./types/types";
+import { colors, type sensorOutput, type size } from "./types/types";
 import TTTStage from "./TTTStage";
+import { PrevPoints } from "./PrevPoints";
 
 interface TTTProps {
   calValues: sensorOutput;
   output: sensorOutput;
-  oldOutput: sensorOutput
+  oldOutput: sensorOutput;
 }
 
 export function TTT(props: TTTProps): ReactNode {
@@ -19,8 +20,28 @@ export function TTT(props: TTTProps): ReactNode {
   return (
     <div className="main-ttt">
       <TTTStage size={size}>
+        <PrevPoints
+          previous={props.oldOutput}
+          height={size.h}
+          width={size.w}
+          color={colors.green}
+        ></PrevPoints>
+         <PrevPoints
+          previous={props.oldOutput}
+          factor={1.5}
+          height={size.h}
+          width={size.w}
+          color={colors.blue}
+        ></PrevPoints>
+        <PrevPoints
+          previous={props.oldOutput}
+          factor={2}
+          height={size.h}
+          width={size.w}
+          color={colors.red}
+        ></PrevPoints>
         <Pompon
-          lineWidth={3}
+          lineWidth={10}
           size={size}
           sensorCalibrate={props.calValues}
           sensorData={props.output}

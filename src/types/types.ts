@@ -43,6 +43,15 @@ export enum sensorNumber {
   Two = 2,
 }
 
+export enum colors {
+  blue = 0x220b3c,
+  lightblue = 0xffd900,
+  yellow = 0x5f4bb6,
+  red = 0xcb2f5c,
+  green = 0x3cb878,
+  black = 0x121c17
+}
+
 export type configuration = {
   noChannels: number;
 };

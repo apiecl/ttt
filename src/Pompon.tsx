@@ -6,6 +6,7 @@ import {
   size,
   variant,
   variantNumber,
+  colors,
 } from "./types/types";
 import { Persistent } from "./Persistent";
 import { calcPos, calcRadius } from "./utils/utils";
@@ -31,22 +32,20 @@ function Pompon(props: pomponProps) {
   const center = { x: props.size.w / 2, y: props.size.h / 2 };
 
   const calculateRadius = useCallback(
-    (channelData: number, calValue:number) => {
+    (channelData: number, calValue: number) => {
       return calcRadius(channelData, calValue, props.size.h);
     },
     [props.size.h],
   );
 
-
   const [points, setPoints] = useState<position[]>();
-
 
   const drawLine = useCallback(
     (g: graphics, color: number, sensorNo: number) => {
       g.clear();
       const tmpPositions: position[] = [];
       for (let i = 0; i < 12; i++) {
-        g.lineStyle(props.lineWidth, color, 0.2);
+        g.lineStyle(props.lineWidth, color, 1);
         g.moveTo(center.x, center.y);
         const sensorValue = (props.sensorData as unknown as variantNumber)[
           i.toString()
@@ -58,7 +57,10 @@ function Pompon(props: pomponProps) {
           const radius = calculateRadius(sensorValue, calibrateValue);
           const angle = angleUnit * i + sensorNo * 5;
           const pointPos = calcPos(radius, angle);
-          tmpPositions.push({ x: pointPos.x + center.x, y: pointPos.y + center.y });
+          tmpPositions.push({
+            x: pointPos.x + center.x,
+            y: pointPos.y + center.y,
+          });
           g.lineTo(pointPos.x + center.x, pointPos.y + center.y);
         }
       }
@@ -81,7 +83,7 @@ function Pompon(props: pomponProps) {
         props.sensorData &&
         (props.sensorData as unknown as variant)["s"] === 1
       ) {
-        drawLine(g, 0xffd900, 1);
+        drawLine(g, colors.lightblue, 4);
       }
     },
     [props.sensorData, drawLine],
@@ -93,7 +95,7 @@ function Pompon(props: pomponProps) {
         props.sensorData &&
         (props.sensorData as unknown as variant)["s"] === 2
       ) {
-        drawLine(g, 0x5f4bb6, 2);
+        drawLine(g, colors.yellow, 4);
       }
     },
     [props.sensorData, drawLine],
@@ -104,7 +106,12 @@ function Pompon(props: pomponProps) {
       <Graphics draw={drawSensorA}></Graphics>
       <Graphics draw={drawSensorB}></Graphics>
       {points?.map((point, idx) => (
-        <Persistent key={`point-${idx}`} position={point} size={5} />
+        <Persistent
+          key={`point-${idx}`}
+          position={point}
+          size={15}
+          color={colors.blue}
+        />
       ))}
     </>
   );
