@@ -18,11 +18,11 @@ function TTTStage(props:stageprops) {
     <Stage
       width={props.size.w}
       height={props.size.h}
-      options={{ backgroundColor: colors.black, antialias: true }}
+      options={{ backgroundColor: colors.background, antialias: true }}
     >
       <Filters
-        blur={{ blur: 5 }}
-        noise={{ noise: 0.2 }}
+        blur={{ blur: 1 }}
+        noise={{ noise: 0 }}
       >
         {props.children}
       </Filters>
