@@ -13,7 +13,7 @@ function TTTStage(props:stageprops) {
     <Stage
       width={props.size.w}
       height={props.size.h}
-      options={{ backgroundColor: colors.black, antialias: true }}
+      options={{ backgroundColor: colors.background, antialias: true }}
     >
         {props.children}
     </Stage>

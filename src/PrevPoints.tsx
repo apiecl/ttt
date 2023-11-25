@@ -4,6 +4,7 @@ import { colors, sensorData, variantNumber } from "./types/types";
 
 type graphics = {
   clear: () => void;
+  lineStyle: (width: number, color:number, alpha: number) => void;
   beginFill: (color: number) => void;
   drawCircle: (x: number, y: number, size: number) => void;
   endFill: () => void;
@@ -29,13 +30,13 @@ export function PrevPoints(props: prevpointProps) {
           }
           g;
           g.clear();
-          g.beginFill(props.color);
+          g.lineStyle(1, colors.white, 0.5);
           g.drawCircle(center.x, center.y, channelData);
           g.endFill();
         }
       }
     },
-    [center.x, center.y, props.previous],
+    [center.x, center.y, props.factor, props.previous],
   );
 
   return (

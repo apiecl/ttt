@@ -6,10 +6,11 @@ import {
   size,
   variant,
   variantNumber,
+  sensorNumber,
   colors,
 } from "./types/types";
 import { Persistent } from "./Persistent";
-import { calcPos, calcRadius } from "./utils/utils";
+import { calcPos, calcRadius, channelToColor } from "./utils/utils";
 
 interface pomponProps {
   sensorData: sensorOutput;
@@ -23,6 +24,8 @@ type graphics = {
   lineStyle: (width: number, color: number, alpha: number) => void;
   moveTo: (x: number, y: number) => void;
   lineTo: (x: number, y: number) => void;
+  beginFill: (color: number) => void;
+  drawCircle: (x: number, y: number, radius: number) => void;
 };
 
 function Pompon(props: pomponProps) {
@@ -40,12 +43,18 @@ function Pompon(props: pomponProps) {
 
   const [points, setPoints] = useState<position[]>();
 
+  const drawCenter = useCallback((g:graphics) => {
+    g.clear();
+    g.beginFill(colors.background);
+    g.drawCircle(center.x, center.y, 30);
+  },[center.x, center.y]);
+
   const drawLine = useCallback(
-    (g: graphics, color: number, sensorNo: number) => {
+    (g: graphics, sensorNo: number) => {
       g.clear();
       const tmpPositions: position[] = [];
       for (let i = 0; i < 12; i++) {
-        g.lineStyle(props.lineWidth, color, 1);
+        g.lineStyle(props.lineWidth, channelToColor(i, sensorNo as sensorNumber), 1);
         g.moveTo(center.x, center.y);
         const sensorValue = (props.sensorData as unknown as variantNumber)[
           i.toString()
@@ -83,7 +92,7 @@ function Pompon(props: pomponProps) {
         props.sensorData &&
         (props.sensorData as unknown as variant)["s"] === 1
       ) {
-        drawLine(g, colors.lightblue, 4);
+        drawLine(g, 4);
       }
     },
     [props.sensorData, drawLine],
@@ -95,7 +104,7 @@ function Pompon(props: pomponProps) {
         props.sensorData &&
         (props.sensorData as unknown as variant)["s"] === 2
       ) {
-        drawLine(g, colors.yellow, 4);
+        drawLine(g, 4);
       }
     },
     [props.sensorData, drawLine],
@@ -105,14 +114,16 @@ function Pompon(props: pomponProps) {
     <>
       <Graphics draw={drawSensorA}></Graphics>
       <Graphics draw={drawSensorB}></Graphics>
+      
       {points?.map((point, idx) => (
         <Persistent
           key={`point-${idx}`}
           position={point}
-          size={15}
-          color={colors.blue}
+          size={10}
+          color={channelToColor(idx, (props.sensorData as unknown as variant)["s"] as sensorNumber)}
         />
       ))}
+      <Graphics draw={drawCenter}></Graphics>
     </>
   );
 }
