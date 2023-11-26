@@ -62,7 +62,7 @@ export function TTTConnect(): ReactNode {
 
   useEffect(() => {
     if (oldOutputs.length < baseconfig.noStore) {
-      setOldOutputs((oldOutputs) => [...oldOutputs, oldOutput]);
+      setOldOutputs((oldOutputs) => [oldOutput, ...oldOutputs]);
     } else {
       setOldOutputs([{ ...initialValues }]);
     }

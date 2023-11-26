@@ -19,6 +19,7 @@ interface pomponProps {
   size: size;
   lineWidth: number;
   age?: number;
+  totalOlds?: number;
 }
 
 type graphics = {
@@ -49,28 +50,26 @@ function Pompon(props: pomponProps) {
   const [pointSize, setPointSize] = useState<number>(5);
  
 
-  useEffect(() => {}, [props.sensorData]);
-
   const calcAlphaAndWidth = useCallback((age:number) => {
-    if(age) {
+    if(age && props.totalOlds) {
       const max = baseconfig.noStore;
-      const unit = 1 / max;
-      const lineUnit = 8 / max;
+      const alphaUnit = 1 / props.totalOlds;
+      const lineUnit = props.lineWidth / props.totalOlds;
       const pointUnit = 5 / max;
       setAlpha(oldAlpha => {
-        const tmpAlpha = oldAlpha > 0 ? 0.8 - age * unit : 0.1;
+        const tmpAlpha = oldAlpha > 0 ? 1 - (age * alphaUnit) : 0.1;
         return tmpAlpha;
       });
       setWidth(oldWidth => {
-        const tmpWidth = oldWidth > 0 ? 8 - age * lineUnit : 0.1;
+        const tmpWidth = oldWidth > 0 ? props.lineWidth - (age * lineUnit) : 0.1;
         return tmpWidth;
       });
       setPointSize(oldPointSize => {
-        const tmpPointSize = oldPointSize > 0 ? 5 - age * pointUnit : 0.1;
+        const tmpPointSize = oldPointSize > 0 ? 5 - (age * pointUnit) : 0.1;
         return tmpPointSize;
       });
     }
-  }, [])
+  }, [props.lineWidth, props.totalOlds])
 
   useEffect(() => {
     if(props.age) {
@@ -102,7 +101,7 @@ function Pompon(props: pomponProps) {
         )[i.toString()];
         if (sensorValue !== calibrateValue) {
           const radius = calculateRadius(sensorValue, calibrateValue);
-          const angle = angleUnit * i * sensorNo;
+          const angle = 360 - (angleUnit * i * sensorNo);
           const pointPos = calcPos(radius, angle);
           tmpPositions.push({
             x: pointPos.x + center.x,
@@ -136,8 +135,8 @@ function Pompon(props: pomponProps) {
 
   return (
     <>
-      <Graphics draw={drawSensorA}></Graphics>
-      <Graphics draw={drawSensorB}></Graphics>
+      <Graphics key={"sensorA"} draw={drawSensorA}></Graphics>
+      <Graphics key={"sensorB"} draw={drawSensorB}></Graphics>
 
       {points?.map((point, idx) => (
         <Persistent
@@ -151,7 +150,7 @@ function Pompon(props: pomponProps) {
           )}
         />
       ))}
-      <Graphics draw={drawCenter}></Graphics>
+      <Graphics key={"center"} draw={drawCenter}></Graphics>
     </>
   );
 }

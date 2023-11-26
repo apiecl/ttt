@@ -49,11 +49,13 @@ export function TTT(props: TTTProps): ReactNode {
         />
         {props.oldOutputs && props.oldOutputs.map((output, idx) => 
           <Pompon
+          key={`pompon-${idx}`}
           lineWidth={10}
           size={size}
           sensorCalibrate={props.calValues}
           sensorData={output}
           age={idx}
+          totalOlds={props.oldOutputs.length}
         />
         )}
       </TTTStage>
