@@ -11,13 +11,14 @@ import {
 } from "./types/types";
 import { Persistent } from "./Persistent";
 import { calcPos, calcRadius, channelToColor } from "./utils/utils";
+import { baseconfig } from "./conf/baseconfig";
 
 interface pomponProps {
   sensorData: sensorOutput;
   sensorCalibrate: sensorOutput;
   size: size;
   lineWidth: number;
-  age?: number
+  age?: number;
 }
 
 type graphics = {
@@ -32,9 +33,8 @@ type graphics = {
 function Pompon(props: pomponProps) {
   //Time alive in miliseconds
   const nsensors = 12;
-  const angleUnit = 360 / nsensors;
+  const angleUnit = 360 / (nsensors * 2);
   const center = { x: props.size.w / 2, y: props.size.h / 2 };
-
 
   const calculateRadius = useCallback(
     (channelData: number, calValue: number) => {
@@ -46,23 +46,46 @@ function Pompon(props: pomponProps) {
   const [points, setPoints] = useState<position[]>();
   const [alpha, setAlpha] = useState<number>(1);
   const [width, setWidth] = useState<number>(4);
+  const [pointSize, setPointSize] = useState<number>(5);
+ 
+
+  useEffect(() => {}, [props.sensorData]);
+
+  const calcAlphaAndWidth = useCallback((age:number) => {
+    if(age) {
+      const max = baseconfig.noStore;
+      const unit = 1 / max;
+      const lineUnit = 8 / max;
+      const pointUnit = 5 / max;
+      setAlpha(oldAlpha => {
+        const tmpAlpha = oldAlpha > 0 ? 0.8 - age * unit : 0.1;
+        return tmpAlpha;
+      });
+      setWidth(oldWidth => {
+        const tmpWidth = oldWidth > 0 ? 8 - age * lineUnit : 0.1;
+        return tmpWidth;
+      });
+      setPointSize(oldPointSize => {
+        const tmpPointSize = oldPointSize > 0 ? 5 - age * pointUnit : 0.1;
+        return tmpPointSize;
+      });
+    }
+  }, [])
 
   useEffect(() => {
     if(props.age) {
-      //Alpha divided by max permanent
-      const max = 20;
-      const unit = 1 / max;
-      const lineUnit = 8 / max;
-      setAlpha(1 - (props.age * unit));
-      setWidth(8 - (props.age * lineUnit));
+      calcAlphaAndWidth(props.age);
     }
-  }, [props.age, alpha]);
+  }, [calcAlphaAndWidth, props.age]);
 
-  const drawCenter = useCallback((g:graphics) => {
-    g.clear();
-    g.beginFill(colors.background);
-    g.drawCircle(center.x, center.y, 30);
-  },[center.x, center.y]);
+  const drawCenter = useCallback(
+    (g: graphics) => {
+      g.clear();
+      g.beginFill(colors.background);
+      g.drawCircle(center.x, center.y, 15);
+    },
+    [center.x, center.y],
+  );
 
   const drawLine = useCallback(
     (g: graphics, sensorNo: number) => {
@@ -79,7 +102,7 @@ function Pompon(props: pomponProps) {
         )[i.toString()];
         if (sensorValue !== calibrateValue) {
           const radius = calculateRadius(sensorValue, calibrateValue);
-          const angle = angleUnit * i + sensorNo * 5;
+          const angle = angleUnit * i * sensorNo;
           const pointPos = calcPos(radius, angle);
           tmpPositions.push({
             x: pointPos.x + center.x,
@@ -90,15 +113,12 @@ function Pompon(props: pomponProps) {
       }
       setPoints(tmpPositions);
     },
-    [alpha, angleUnit, calculateRadius, center.x, center.y, props.lineWidth, props.sensorCalibrate, props.sensorData],
+    [alpha, angleUnit, calculateRadius, center.x, center.y, props.sensorCalibrate, props.sensorData, width],
   );
 
   const drawSensorA = useCallback(
     (g: graphics) => {
-      if (
-        props.sensorData &&
-        (props.sensorData as unknown as variant)["s"] === 1
-      ) {
+      if (props.sensorData) {
         drawLine(g, 1);
       }
     },
@@ -107,10 +127,7 @@ function Pompon(props: pomponProps) {
 
   const drawSensorB = useCallback(
     (g: graphics) => {
-      if (
-        props.sensorData &&
-        (props.sensorData as unknown as variant)["s"] === 2
-      ) {
+      if (props.sensorData) {
         drawLine(g, 2);
       }
     },
@@ -121,14 +138,17 @@ function Pompon(props: pomponProps) {
     <>
       <Graphics draw={drawSensorA}></Graphics>
       <Graphics draw={drawSensorB}></Graphics>
-      
+
       {points?.map((point, idx) => (
         <Persistent
           key={`point-${idx}`}
           position={point}
-          size={5}
+          size={pointSize}
           alpha={alpha}
-          color={channelToColor(idx, (props.sensorData as unknown as variant)["s"] as sensorNumber)}
+          color={channelToColor(
+            idx,
+            (props.sensorData as unknown as variant)["s"] as sensorNumber,
+          )}
         />
       ))}
       <Graphics draw={drawCenter}></Graphics>

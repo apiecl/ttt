@@ -1,5 +1,5 @@
-import { Graphics, Container, withFilters } from "@pixi/react";
-import * as PIXI from "pixi.js";
+import { Graphics } from "@pixi/react";
+
 import { position, colors } from "./types/types";
 import { useCallback } from "react";
 
@@ -17,10 +17,6 @@ type graphics = {
 };
 
 export function Persistent(props: persistentProps) {
-  const Filters = withFilters(Container, {
-    alpha: PIXI.AlphaFilter
-  } );
-
   const drawCircle = useCallback(
     (g: graphics) => {
       g;
@@ -32,5 +28,5 @@ export function Persistent(props: persistentProps) {
     [props],
   );
 
-  return <Filters alpha={props.alpha}><Graphics draw={drawCircle} /></Filters>
+  return <Graphics draw={drawCircle} />
 }

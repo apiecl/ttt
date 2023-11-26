@@ -65,7 +65,10 @@ export const colorsChannels:colorsSensors = {
 }
 
 export type configuration = {
+  //number of channels per sensor
   noChannels: number;
+  //number of records stored
+  noStore: number;
 };
 
 export type size = {

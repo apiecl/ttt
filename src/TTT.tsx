@@ -47,12 +47,6 @@ export function TTT(props: TTTProps): ReactNode {
           sensorCalibrate={props.calValues}
           sensorData={props.output}
         />
-        <Pompon
-          lineWidth={10}
-          size={size}
-          sensorCalibrate={props.calValues}
-          sensorData={props.oldOutput}
-        />
         {props.oldOutputs && props.oldOutputs.map((output, idx) => 
           <Pompon
           lineWidth={10}

@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 import { TTT } from "./TTT";
 import type { sensorOutput } from "./types/types";
 import { io } from "socket.io-client";
+import { baseconfig } from "./conf/baseconfig";
 
 export function TTTConnect(): ReactNode {
   const socket = true;
@@ -60,7 +61,7 @@ export function TTTConnect(): ReactNode {
   }, [seconds]);
 
   useEffect(() => {
-    if (oldOutputs.length < 20) {
+    if (oldOutputs.length < baseconfig.noStore) {
       setOldOutputs((oldOutputs) => [...oldOutputs, oldOutput]);
     } else {
       setOldOutputs([{ ...initialValues }]);
