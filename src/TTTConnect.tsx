@@ -1,5 +1,4 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import axios from "axios";
 import { TTT } from "./TTT";
 import type { sensorOutput } from "./types/types";
 import { io } from "socket.io-client";
@@ -8,7 +7,6 @@ export function TTTConnect(): ReactNode {
   const socket = true;
 
   const initialMax: number = 204;
-
 
   const initialValues = useMemo(() => {
     const initialValues: sensorOutput = {
@@ -29,7 +27,6 @@ export function TTTConnect(): ReactNode {
     };
     return initialValues;
   }, [initialMax]);
-  
 
   const [calValues, setCalValues] = useState<sensorOutput>({
     ...initialValues,
@@ -41,52 +38,64 @@ export function TTTConnect(): ReactNode {
     ...initialValues,
   });
 
-  const [oldOutputs, setOldOutputs] = useState<sensorOutput[]>([{...initialValues}]);
+  const [oldOutputs, setOldOutputs] = useState<sensorOutput[]>([
+    { ...initialValues },
+  ]);
 
   const [seconds, setSeconds] = useState(0);
 
+  const [debug, setDebug] = useState<boolean>(false);
+
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setSeconds(seconds => seconds + 1);
+      setSeconds((seconds) => seconds + 1);
     }, 200);
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-      setOldOutput(output);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seconds])
+    setOldOutput(output);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seconds]);
 
   useEffect(() => {
-    console.log(oldOutputs.length);
-    if(oldOutputs.length < 20) {
-      setOldOutputs(oldOutputs => [...oldOutputs,oldOutput]);
+    if (oldOutputs.length < 20) {
+      setOldOutputs((oldOutputs) => [...oldOutputs, oldOutput]);
     } else {
-      setOldOutputs([{...initialValues}]);
+      setOldOutputs([{ ...initialValues }]);
     }
-  }, [initialValues,output]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialValues, output]);
 
   useEffect(() => {
-    if (!socket) {
-      setInterval(() => {
-        axios.get("http://localhost:3000").then((res) => {
-          if (res.data.c === true) {
-            setCalValues(res.data);
-          } else {
-            setOutput(res.data);
-          }
-        });
-      }, 33.3);
-    } else {
-        console.log('client socket');
-        const clientsocket = io('http://localhost:3000');
-        clientsocket.on('data-parsed', (data) => {
-            setOutput(data);
-        });
-    }
+      console.log("connecting client socket");
+      const clientsocket = io("http://localhost:3000");
+      clientsocket.on("data-parsed", (data) => {
+        if(data.c === true) {
+          setCalValues(data);
+        } else {
+          setOutput(data);
+        }
+      });
+      clientsocket.on('data-debug', (data) => {
+        setDebug(data);
+      });
   }, [socket]);
 
   return (
-    <TTT calValues={calValues} output={output} oldOutput={oldOutput} oldOutputs={oldOutputs}></TTT>
+    <>
+      <TTT
+        calValues={calValues}
+        output={output}
+        oldOutput={oldOutput}
+        oldOutputs={oldOutputs}
+      ></TTT>
+      {debug === true && (
+        <div className="debuginfo">
+          {JSON.stringify(output)} - (storing {oldOutputs.length} values)
+        </div>
+      )}
+    </>
   );
 }

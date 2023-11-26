@@ -45,13 +45,16 @@ function Pompon(props: pomponProps) {
 
   const [points, setPoints] = useState<position[]>();
   const [alpha, setAlpha] = useState<number>(1);
+  const [width, setWidth] = useState<number>(4);
 
   useEffect(() => {
     if(props.age) {
       //Alpha divided by max permanent
       const max = 20;
       const unit = 1 / max;
+      const lineUnit = 8 / max;
       setAlpha(1 - (props.age * unit));
+      setWidth(8 - (props.age * lineUnit));
     }
   }, [props.age, alpha]);
 
@@ -66,7 +69,7 @@ function Pompon(props: pomponProps) {
       g.clear();
       const tmpPositions: position[] = [];
       for (let i = 0; i < 12; i++) {
-        g.lineStyle(props.lineWidth, channelToColor(i, sensorNo as sensorNumber), alpha);
+        g.lineStyle(width, channelToColor(i, sensorNo as sensorNumber), alpha);
         g.moveTo(center.x, center.y);
         const sensorValue = (props.sensorData as unknown as variantNumber)[
           i.toString()
@@ -96,7 +99,7 @@ function Pompon(props: pomponProps) {
         props.sensorData &&
         (props.sensorData as unknown as variant)["s"] === 1
       ) {
-        drawLine(g, 4);
+        drawLine(g, 1);
       }
     },
     [props.sensorData, drawLine],
@@ -108,7 +111,7 @@ function Pompon(props: pomponProps) {
         props.sensorData &&
         (props.sensorData as unknown as variant)["s"] === 2
       ) {
-        drawLine(g, 4);
+        drawLine(g, 2);
       }
     },
     [props.sensorData, drawLine],
