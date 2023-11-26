@@ -2,7 +2,6 @@ import { Stage, Container, withFilters } from "@pixi/react";
 import * as PIXI from "pixi.js";
 import { ReactNode } from "react";
 import { colors, size } from "./types/types";
-//import { BlurFilter, ColorMatrixFilter } from "pixi.js";
 
 interface stageprops {
   children: ReactNode[] | ReactNode,
@@ -11,8 +10,7 @@ interface stageprops {
 
 function TTTStage(props:stageprops) {
   const Filters = withFilters(Container, {
-    blur: PIXI.BlurFilter,
-    noise: PIXI.NoiseFilter
+    blur: PIXI.BlurFilter
   });
   return (
     <Stage
@@ -21,8 +19,7 @@ function TTTStage(props:stageprops) {
       options={{ backgroundColor: colors.background, antialias: true }}
     >
       <Filters
-        blur={{ blur: 1 }}
-        noise={{ noise: 0 }}
+        blur={{ blur: 0.1 }}
       >
         {props.children}
       </Filters>

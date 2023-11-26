@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Graphics } from "@pixi/react";
 import {
   position,
@@ -17,6 +17,7 @@ interface pomponProps {
   sensorCalibrate: sensorOutput;
   size: size;
   lineWidth: number;
+  age?: number
 }
 
 type graphics = {
@@ -34,6 +35,7 @@ function Pompon(props: pomponProps) {
   const angleUnit = 360 / nsensors;
   const center = { x: props.size.w / 2, y: props.size.h / 2 };
 
+
   const calculateRadius = useCallback(
     (channelData: number, calValue: number) => {
       return calcRadius(channelData, calValue, props.size.h);
@@ -42,6 +44,16 @@ function Pompon(props: pomponProps) {
   );
 
   const [points, setPoints] = useState<position[]>();
+  const [alpha, setAlpha] = useState<number>(1);
+
+  useEffect(() => {
+    if(props.age) {
+      //Alpha divided by max permanent
+      const max = 20;
+      const unit = 1 / max;
+      setAlpha(1 - (props.age * unit));
+    }
+  }, [props.age, alpha]);
 
   const drawCenter = useCallback((g:graphics) => {
     g.clear();
@@ -54,7 +66,7 @@ function Pompon(props: pomponProps) {
       g.clear();
       const tmpPositions: position[] = [];
       for (let i = 0; i < 12; i++) {
-        g.lineStyle(props.lineWidth, channelToColor(i, sensorNo as sensorNumber), 1);
+        g.lineStyle(props.lineWidth, channelToColor(i, sensorNo as sensorNumber), alpha);
         g.moveTo(center.x, center.y);
         const sensorValue = (props.sensorData as unknown as variantNumber)[
           i.toString()
@@ -75,15 +87,7 @@ function Pompon(props: pomponProps) {
       }
       setPoints(tmpPositions);
     },
-    [
-      angleUnit,
-      calculateRadius,
-      center.x,
-      center.y,
-      props.lineWidth,
-      props.sensorCalibrate,
-      props.sensorData,
-    ],
+    [alpha, angleUnit, calculateRadius, center.x, center.y, props.lineWidth, props.sensorCalibrate, props.sensorData],
   );
 
   const drawSensorA = useCallback(
@@ -119,7 +123,8 @@ function Pompon(props: pomponProps) {
         <Persistent
           key={`point-${idx}`}
           position={point}
-          size={10}
+          size={5}
+          alpha={alpha}
           color={channelToColor(idx, (props.sensorData as unknown as variant)["s"] as sensorNumber)}
         />
       ))}

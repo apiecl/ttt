@@ -9,6 +9,7 @@ interface TTTProps {
   calValues: sensorOutput;
   output: sensorOutput;
   oldOutput: sensorOutput;
+  oldOutputs: sensorOutput[]
 }
 
 export function TTT(props: TTTProps): ReactNode {
@@ -52,6 +53,15 @@ export function TTT(props: TTTProps): ReactNode {
           sensorCalibrate={props.calValues}
           sensorData={props.oldOutput}
         />
+        {props.oldOutputs && props.oldOutputs.map((output, idx) => 
+          <Pompon
+          lineWidth={10}
+          size={size}
+          sensorCalibrate={props.calValues}
+          sensorData={output}
+          age={idx}
+        />
+        )}
       </TTTStage>
     </div>
   );
