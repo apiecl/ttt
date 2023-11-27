@@ -44,7 +44,7 @@ export enum sensorNumber {
 }
 
 export enum colors {
-  background = 0x222222,
+  background = 0x000000,
   blue = 0x220b3c,
   lightblue = 0xffd900,
   yellow = 0x5f4bb6,

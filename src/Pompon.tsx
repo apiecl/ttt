@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Graphics } from "@pixi/react";
+import { Graphics, Text } from "@pixi/react";
+import * as PIXI from "pixi.js";
 import {
-  position,
   sensorOutput,
   size,
   variant,
@@ -20,6 +20,14 @@ interface pomponProps {
   lineWidth: number;
   age?: number;
   totalOlds?: number;
+  debug: boolean;
+}
+
+type point = {
+  x: number,
+  y: number,
+  ch: string,
+  s: sensorNumber
 }
 
 type graphics = {
@@ -33,9 +41,8 @@ type graphics = {
 
 function Pompon(props: pomponProps) {
   //Time alive in miliseconds
-  const nsensors = 12;
-  const angleUnit = 360 / (nsensors * 2);
   const center = { x: props.size.w / 2, y: props.size.h / 2 };
+  const anglesArray = [0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345,360];
 
   const calculateRadius = useCallback(
     (channelData: number, calValue: number) => {
@@ -44,35 +51,38 @@ function Pompon(props: pomponProps) {
     [props.size.h],
   );
 
-  const [points, setPoints] = useState<position[]>();
+  const [points, setPoints] = useState<point[]>();
   const [alpha, setAlpha] = useState<number>(1);
   const [width, setWidth] = useState<number>(4);
   const [pointSize, setPointSize] = useState<number>(5);
- 
 
-  const calcAlphaAndWidth = useCallback((age:number) => {
-    if(age && props.totalOlds) {
-      const max = baseconfig.noStore;
-      const alphaUnit = 1 / props.totalOlds;
-      const lineUnit = props.lineWidth / props.totalOlds;
-      const pointUnit = 5 / max;
-      setAlpha(oldAlpha => {
-        const tmpAlpha = oldAlpha > 0 ? 1 - (age * alphaUnit) : 0.1;
-        return tmpAlpha;
-      });
-      setWidth(oldWidth => {
-        const tmpWidth = oldWidth > 0 ? props.lineWidth - (age * lineUnit) : 0.1;
-        return tmpWidth;
-      });
-      setPointSize(oldPointSize => {
-        const tmpPointSize = oldPointSize > 0 ? 5 - (age * pointUnit) : 0.1;
-        return tmpPointSize;
-      });
-    }
-  }, [props.lineWidth, props.totalOlds])
+  const calcAlphaAndWidth = useCallback(
+    (age: number) => {
+      if (age && props.totalOlds) {
+        const max = baseconfig.noStore;
+        const alphaUnit = 1 / props.totalOlds;
+        const lineUnit = props.lineWidth / props.totalOlds;
+        const pointUnit = 5 / max;
+        setAlpha((oldAlpha) => {
+          const tmpAlpha = oldAlpha > 0 ? 1 - age * alphaUnit : 0.1;
+          return tmpAlpha;
+        });
+        setWidth((oldWidth) => {
+          const tmpWidth =
+            oldWidth > 0 ? props.lineWidth - age * lineUnit : 0.1;
+          return tmpWidth;
+        });
+        setPointSize((oldPointSize) => {
+          const tmpPointSize = oldPointSize > 0 ? 5 - age * pointUnit : 0.1;
+          return tmpPointSize;
+        });
+      }
+    },
+    [props.lineWidth, props.totalOlds],
+  );
 
   useEffect(() => {
-    if(props.age) {
+    if (props.age) {
       calcAlphaAndWidth(props.age);
     }
   }, [calcAlphaAndWidth, props.age]);
@@ -89,30 +99,39 @@ function Pompon(props: pomponProps) {
   const drawLine = useCallback(
     (g: graphics, sensorNo: number) => {
       g.clear();
-      const tmpPositions: position[] = [];
-      for (let i = 0; i < 12; i++) {
-        g.lineStyle(width, channelToColor(i, sensorNo as sensorNumber), alpha);
-        g.moveTo(center.x, center.y);
-        const sensorValue = (props.sensorData as unknown as variantNumber)[
-          i.toString()
-        ];
-        const calibrateValue = (
-          props.sensorCalibrate as unknown as variantNumber
-        )[i.toString()];
-        if (sensorValue !== calibrateValue) {
-          const radius = calculateRadius(sensorValue, calibrateValue);
-          const angle = 360 - (angleUnit * i * sensorNo);
-          const pointPos = calcPos(radius, angle);
-          tmpPositions.push({
-            x: pointPos.x + center.x,
-            y: pointPos.y + center.y,
-          });
-          g.lineTo(pointPos.x + center.x, pointPos.y + center.y);
+      const tmpPositions:point[] = [];
+      Object.keys(props.sensorData).forEach((channelKey) => {
+        if (channelKey !== "s" && channelKey !== "c") {
+          g.lineStyle(
+            width,
+            channelToColor(parseInt(channelKey), sensorNo as sensorNumber),
+            alpha,
+          );
+          g.moveTo(center.x, center.y);
+
+          const sensorValue = (props.sensorData as unknown as variantNumber)[
+            channelKey
+          ];
+
+          const calibrateValue = (
+            props.sensorCalibrate as unknown as variantNumber
+          )[channelKey];
+
+          if (sensorValue !== calibrateValue) {
+            const radius = calculateRadius(sensorValue, calibrateValue);
+            const angle = anglesArray[parseInt(channelKey) * sensorNo];
+
+            const pointPos = calcPos(center, radius, angle);
+
+            tmpPositions.push({x:pointPos.x, y: pointPos.y, ch: channelKey, s: props.sensorData["s"]});
+            g.lineTo(pointPos.x, pointPos.y);
+          }
         }
-      }
+      });
+
       setPoints(tmpPositions);
     },
-    [alpha, angleUnit, calculateRadius, center.x, center.y, props.sensorCalibrate, props.sensorData, width],
+    [props.sensorCalibrate, props.sensorData],
   );
 
   const drawSensorA = useCallback(
@@ -139,16 +158,25 @@ function Pompon(props: pomponProps) {
       <Graphics key={"sensorB"} draw={drawSensorB}></Graphics>
 
       {points?.map((point, idx) => (
-        <Persistent
-          key={`point-${idx}`}
-          position={point}
-          size={pointSize}
-          alpha={alpha}
-          color={channelToColor(
-            idx,
-            (props.sensorData as unknown as variant)["s"] as sensorNumber,
-          )}
-        />
+        <>
+          <Persistent
+            key={`point-${idx}`}
+            position={point}
+            size={pointSize}
+            alpha={alpha}
+            color={channelToColor(
+              idx,
+              (props.sensorData as unknown as variant)["s"] as sensorNumber,
+            )}
+          />
+          {props.debug && <Text
+            x={point.x}
+            y={point.y}
+            text={`Channel ${point.ch} - S: ${point.s}`}
+            style={new PIXI.TextStyle({ fill: "#ffffff", fontSize: 12 })}
+          />}
+          
+        </>
       ))}
       <Graphics key={"center"} draw={drawCenter}></Graphics>
     </>
