@@ -93,13 +93,11 @@ export function TTTConnect(): ReactNode {
         oldOutputs={oldOutputs}
         debug={debug}
       ></TTT>
-      {debug === true && (
+      
         <div className="debuginfo">
-          {JSON.stringify(initialValues)}<br/>
           {JSON.stringify(output)} - (storing {oldOutputs.length} values)<br/>
-          Calibration: {JSON.stringify(calValues)}
         </div>
-      )}
+      
     </>
   );
 }

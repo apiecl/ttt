@@ -1,17 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
-import { Graphics, Text } from "@pixi/react";
-import * as PIXI from "pixi.js";
+import { Graphics } from "@pixi/react";
 import {
   sensorOutput,
   size,
-  variant,
   variantNumber,
   sensorNumber,
   colors,
 } from "./types/types";
-import { Persistent } from "./Persistent";
 import { calcPos, calcRadius, channelToColor } from "./utils/utils";
-import { baseconfig } from "./conf/baseconfig";
 
 interface pomponProps {
   sensorData: sensorOutput;
@@ -36,6 +32,7 @@ type graphics = {
   moveTo: (x: number, y: number) => void;
   lineTo: (x: number, y: number) => void;
   beginFill: (color: number) => void;
+  endFill: () => void;
   drawCircle: (x: number, y: number, radius: number) => void;
 };
 
@@ -51,18 +48,18 @@ function Pompon(props: pomponProps) {
     [props.size.h],
   );
 
-  const [points, setPoints] = useState<point[]>();
+  
   const [alpha, setAlpha] = useState<number>(1);
   const [width, setWidth] = useState<number>(4);
-  const [pointSize, setPointSize] = useState<number>(5);
+
 
   const calcAlphaAndWidth = useCallback(
     (age: number) => {
       if (age && props.totalOlds) {
-        const max = baseconfig.noStore;
+        
         const alphaUnit = 1 / props.totalOlds;
         const lineUnit = props.lineWidth / props.totalOlds;
-        const pointUnit = 5 / max;
+        
         setAlpha((oldAlpha) => {
           const tmpAlpha = oldAlpha > 0 ? 1 - age * alphaUnit : 0.1;
           return tmpAlpha;
@@ -72,10 +69,7 @@ function Pompon(props: pomponProps) {
             oldWidth > 0 ? props.lineWidth - age * lineUnit : 0.1;
           return tmpWidth;
         });
-        setPointSize((oldPointSize) => {
-          const tmpPointSize = oldPointSize > 0 ? 5 - age * pointUnit : 0.1;
-          return tmpPointSize;
-        });
+        
       }
     },
     [props.lineWidth, props.totalOlds],
@@ -102,9 +96,10 @@ function Pompon(props: pomponProps) {
       const tmpPositions:point[] = [];
       Object.keys(props.sensorData).forEach((channelKey) => {
         if (channelKey !== "s" && channelKey !== "c") {
+          const curcolor = channelToColor(parseInt(channelKey), sensorNo as sensorNumber);
           g.lineStyle(
             width,
-            channelToColor(parseInt(channelKey), sensorNo as sensorNumber),
+            curcolor,
             alpha,
           );
           g.moveTo(center.x, center.y);
@@ -119,17 +114,22 @@ function Pompon(props: pomponProps) {
 
           if (sensorValue !== calibrateValue) {
             const radius = calculateRadius(sensorValue, calibrateValue);
-            const angle = anglesArray[parseInt(channelKey) * sensorNo];
+            const key:number = sensorNo === 2 ? parseInt(channelKey) + 11 : parseInt(channelKey);
+            const angle = anglesArray[key];
 
             const pointPos = calcPos(center, radius, angle);
 
             tmpPositions.push({x:pointPos.x, y: pointPos.y, ch: channelKey, s: props.sensorData["s"]});
             g.lineTo(pointPos.x, pointPos.y);
+            g.moveTo(pointPos.x, pointPos.y);
+            g.beginFill(curcolor);
+            g.drawCircle(pointPos.x, pointPos.y, 2);
+            g.endFill();
           }
         }
       });
 
-      setPoints(tmpPositions);
+  
     },
     [props.sensorCalibrate, props.sensorData],
   );
@@ -156,28 +156,6 @@ function Pompon(props: pomponProps) {
     <>
       <Graphics key={"sensorA"} draw={drawSensorA}></Graphics>
       <Graphics key={"sensorB"} draw={drawSensorB}></Graphics>
-
-      {points?.map((point, idx) => (
-        <>
-          <Persistent
-            key={`point-${idx}`}
-            position={point}
-            size={pointSize}
-            alpha={alpha}
-            color={channelToColor(
-              idx,
-              (props.sensorData as unknown as variant)["s"] as sensorNumber,
-            )}
-          />
-          {props.debug && <Text
-            x={point.x}
-            y={point.y}
-            text={`Channel ${point.ch} - S: ${point.s}`}
-            style={new PIXI.TextStyle({ fill: "#ffffff", fontSize: 12 })}
-          />}
-          
-        </>
-      ))}
       <Graphics key={"center"} draw={drawCenter}></Graphics>
     </>
   );

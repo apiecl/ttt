@@ -4,10 +4,9 @@ export const calcRadius = (dataVal:number, calVal:number, windowHeight:number):n
   const maxRadius = windowHeight / 2;
   const unit = maxRadius / calVal;
   let radius = maxRadius - dataVal * unit;
-  if(dataVal > calVal - 20) {
-    radius = 0;
+  if(radius < 0) {
+    radius = radius * -1;
   }
-  
   console.log(radius, unit);
 
   return radius;
