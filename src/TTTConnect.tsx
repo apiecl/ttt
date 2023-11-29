@@ -29,9 +29,14 @@ export function TTTConnect(): ReactNode {
     return initialValues;
   }, [initialMax]);
 
-  const [calValues, setCalValues] = useState<sensorOutput>({
+  const [calValuesA, setCalValuesA] = useState<sensorOutput>({
     ...initialValues,
   });
+
+  const [calValuesB, setCalValuesB] = useState<sensorOutput>({
+    ...initialValues,
+  });
+  
   const [output, setOutput] = useState<sensorOutput>({
     ...initialValues,
   });
@@ -47,6 +52,22 @@ export function TTTConnect(): ReactNode {
 
   const [debug, setDebug] = useState<boolean>(false);
 
+  // const debugOutput:sensorOutput = {
+  //   "0": 10,
+  //   "1": 100,
+  //   "2": 100,
+  //   "3": 100,
+  //   "4": 100,
+  //   "5": 100,
+  //   "6": 100,
+  //   "7": 100,
+  //   "8": 20,
+  //   "9": 100,
+  //   "10": 100,
+  //   "11": 10,
+  //   s: 1,
+  //   c: false,
+  // }
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -73,8 +94,10 @@ export function TTTConnect(): ReactNode {
       console.log("connecting client socket");
       const clientsocket = io("http://localhost:3000");
       clientsocket.on("data-parsed", (data) => {
-        if(data.c === true) {
-          setCalValues(data);
+        if(data.c === true && data.s === 1) {
+          setCalValuesA(data);
+        } else if(data.c === true && data.s === 2) {
+          setCalValuesB(data);
         } else {
           setOutput(data);
         }
@@ -87,7 +110,8 @@ export function TTTConnect(): ReactNode {
   return (
     <>
       <TTT
-        calValues={calValues}
+        calValuesA={calValuesA}
+        calValuesB={calValuesB}
         output={output}
         oldOutput={oldOutput}
         oldOutputs={oldOutputs}
@@ -96,6 +120,9 @@ export function TTTConnect(): ReactNode {
       
         <div className="debuginfo">
           {JSON.stringify(output)} - (storing {oldOutputs.length} values)<br/>
+          {debug && <>
+          Calibration Sensor 1: {JSON.stringify(calValuesA)}<br/>
+          Calibration Sensor 2: {JSON.stringify(calValuesB)}</>}
         </div>
       
     </>

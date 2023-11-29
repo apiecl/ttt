@@ -11,7 +11,8 @@ import { calcPos, calcRadius, channelToColor } from "./utils/utils";
 
 interface pomponProps {
   sensorData: sensorOutput;
-  sensorCalibrate: sensorOutput;
+  sensorCalibrateA: sensorOutput;
+  sensorCalibrateB: sensorOutput;
   size: size;
   lineWidth: number;
   age?: number;
@@ -38,8 +39,24 @@ type graphics = {
 
 function Pompon(props: pomponProps) {
   //Time alive in miliseconds
-  const center = { x: props.size.w / 2, y: props.size.h / 2 };
-  const anglesArray = [0,15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240,255,270,285,300,315,330,345,360];
+  
+  
+  
+  useEffect(() => {
+    const tmpArr = [];
+    const slots = 24;
+    const angleUnit = 360 / 24;
+    let slot = 0;
+    for(let i = 0; i <= slots; i++) {
+      slot += angleUnit;
+      tmpArr.push(slot);
+    }
+    setAnglesArray(tmpArr);
+  },[]);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [center, _] = useState({ x: props.size.w / 2, y: props.size.h / 2 });
+  const [anglesArray, setAnglesArray] = useState<Array<number>>([]);
 
   const calculateRadius = useCallback(
     (channelData: number, calValue: number) => {
@@ -91,10 +108,11 @@ function Pompon(props: pomponProps) {
   );
 
   const drawLine = useCallback(
-    (g: graphics, sensorNo: number) => {
+    (g: graphics) => {
       g.clear();
       const tmpPositions:point[] = [];
       Object.keys(props.sensorData).forEach((channelKey) => {
+        const sensorNo:number = props.sensorData["s"];
         if (channelKey !== "s" && channelKey !== "c") {
           const curcolor = channelToColor(parseInt(channelKey), sensorNo as sensorNumber);
           g.lineStyle(
@@ -108,15 +126,24 @@ function Pompon(props: pomponProps) {
             channelKey
           ];
 
-          const calibrateValue = (
-            props.sensorCalibrate as unknown as variantNumber
-          )[channelKey];
+          let calibrateValue:number;
+          
+          if(sensorNo === 1) {
+            calibrateValue = (
+              props.sensorCalibrateA as unknown as variantNumber
+            )[channelKey];
+          } else {
+            calibrateValue = (
+              props.sensorCalibrateA as unknown as variantNumber
+            )[channelKey];
+          }
+          
 
           if (sensorValue !== calibrateValue) {
             const radius = calculateRadius(sensorValue, calibrateValue);
-            const key:number = sensorNo === 2 ? parseInt(channelKey) + 11 : parseInt(channelKey);
-            const angle = anglesArray[key];
-
+            //const key:number = sensorNo === 2 ? parseInt(channelKey) + 14 : parseInt(channelKey);
+            const angle = sensorNo === 1 ? anglesArray[parseInt(channelKey)] : anglesArray[parseInt(channelKey) + 12];
+            
             const pointPos = calcPos(center, radius, angle);
 
             tmpPositions.push({x:pointPos.x, y: pointPos.y, ch: channelKey, s: props.sensorData["s"]});
@@ -131,13 +158,13 @@ function Pompon(props: pomponProps) {
 
   
     },
-    [props.sensorCalibrate, props.sensorData],
+    [alpha, anglesArray, calculateRadius, center, props.sensorCalibrateA, props.sensorData, width],
   );
 
   const drawSensorA = useCallback(
     (g: graphics) => {
       if (props.sensorData) {
-        drawLine(g, 1);
+        drawLine(g);
       }
     },
     [props.sensorData, drawLine],
@@ -146,7 +173,7 @@ function Pompon(props: pomponProps) {
   const drawSensorB = useCallback(
     (g: graphics) => {
       if (props.sensorData) {
-        drawLine(g, 2);
+        drawLine(g);
       }
     },
     [props.sensorData, drawLine],

@@ -6,7 +6,8 @@ import TTTStage from "./TTTStage";
 import { PrevPoints } from "./PrevPoints";
 
 interface TTTProps {
-  calValues: sensorOutput;
+  calValuesA: sensorOutput;
+  calValuesB: sensorOutput;
   output: sensorOutput;
   oldOutput: sensorOutput;
   oldOutputs: sensorOutput[];
@@ -45,16 +46,18 @@ export function TTT(props: TTTProps): ReactNode {
         <Pompon
           lineWidth={10}
           size={size}
-          sensorCalibrate={props.calValues}
+          sensorCalibrateA={props.calValuesA}
+          sensorCalibrateB={props.calValuesB}
           sensorData={props.output}
           debug={props.debug}
         />
-        {props.oldOutputs && props.oldOutputs.map((output, idx) => 
+        {props.oldOutputs && props.debug === false && props.oldOutputs.map((output, idx) => 
           <Pompon
           key={`pompon-${idx}`}
           lineWidth={10}
           size={size}
-          sensorCalibrate={props.calValues}
+          sensorCalibrateA={props.calValuesA}
+          sensorCalibrateB={props.calValuesB}
           sensorData={output}
           age={idx}
           totalOlds={props.oldOutputs.length}

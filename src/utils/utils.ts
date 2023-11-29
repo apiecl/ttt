@@ -7,8 +7,6 @@ export const calcRadius = (dataVal:number, calVal:number, windowHeight:number):n
   if(radius < 0) {
     radius = radius * -1;
   }
-  console.log(radius, unit);
-
   return radius;
 }
 

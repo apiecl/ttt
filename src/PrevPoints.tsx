@@ -19,6 +19,7 @@ interface prevpointProps {
 }
 
 export function PrevPoints(props: prevpointProps) {
+
   const center = { x: props.width / 2, y: props.height / 2 };
   const drawPoints = useCallback(
     (g: graphics) => {
@@ -38,6 +39,8 @@ export function PrevPoints(props: prevpointProps) {
     },
     [center.x, center.y, props.factor, props.previous],
   );
+  
+
 
   return (
     <Container>
