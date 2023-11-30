@@ -54,18 +54,18 @@ export function TTTConnect(): ReactNode {
 
   // const debugOutput:sensorOutput = {
   //   "0": 10,
-  //   "1": 100,
-  //   "2": 100,
-  //   "3": 100,
-  //   "4": 100,
-  //   "5": 100,
-  //   "6": 100,
-  //   "7": 100,
-  //   "8": 20,
-  //   "9": 100,
-  //   "10": 100,
+  //   "1": 10,
+  //   "2": 10,
+  //   "3": 10,
+  //   "4": 10,
+  //   "5": 10,
+  //   "6": 10,
+  //   "7": 10,
+  //   "8": 10,
+  //   "9": 10,
+  //   "10": 10,
   //   "11": 10,
-  //   s: 1,
+  //   s: 2,
   //   c: false,
   // }
 
@@ -115,7 +115,7 @@ export function TTTConnect(): ReactNode {
         output={output}
         oldOutput={oldOutput}
         oldOutputs={oldOutputs}
-        debug={debug}
+        debug={false}
       ></TTT>
       
         <div className="debuginfo">

@@ -47,14 +47,15 @@ function Pompon(props: pomponProps) {
     const slots = 24;
     const angleUnit = 360 / 24;
     let slot = 0;
-    for(let i = 0; i <= slots; i++) {
+    for(let i = 0; i < slots; i++) {
       slot += angleUnit;
       tmpArr.push(slot);
     }
-
+    
+    const start = tmpArr.slice(0, 12);
     //revert the last 12
-    const start = tmpArr.slice(0, 11);
-    const end = tmpArr.slice(12, -1).reverse();
+    const end = tmpArr.slice(12).reverse();
+    console.log(start.length, end.length, tmpArr.length);
     setAnglesArray([...start, ...end]);
   },[]);
 
