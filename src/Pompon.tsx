@@ -51,7 +51,11 @@ function Pompon(props: pomponProps) {
       slot += angleUnit;
       tmpArr.push(slot);
     }
-    setAnglesArray(tmpArr);
+
+    //revert the last 12
+    const start = tmpArr.slice(0, 11);
+    const end = tmpArr.slice(12, -1).reverse();
+    setAnglesArray([...start, ...end]);
   },[]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

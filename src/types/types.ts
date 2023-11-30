@@ -65,9 +65,19 @@ export const colorsChannels: colorsSensors = {
     0xb45f06, 0xe69138, 0xf6b26b, 0x942323, 0xe69138,
   ],
   sensor2: [
-    0x274e13, 0x38761d, 0x6aa84f, 0x93c47d, 0xb6d7a8, 0x12ea6c, 0x1c4587,
-    0x155394, 0x3c78d8, 0x6fa8dc, 0xa4c2f4, 0xffffff
-  ],
+    16777215,
+    10797812,
+    7317724,
+    3963096,
+    1397652,
+    1852807,
+    1239660,
+    11982760,
+    9684093,
+    6989903,
+    3700253,
+    2575891
+],
 };
 
 export type configuration = {
